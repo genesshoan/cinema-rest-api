@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,6 +17,9 @@ import jakarta.validation.constraints.NotNull;
  * Does not include showtimes or schedules (see {@link Showtime}).
  */
 @Entity
+@Table(name = "movies", indexes = {
+    @Index(name = "idx_movie_title", columnList = "title, release_date", unique = true)
+})
 public class Movie {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,8 +37,8 @@ public class Movie {
   private String genre;
 
   @NotNull
-  @Column(name = "realese_date", nullable = false)
-  private LocalDate realeseDate;
+  @Column(name = "release_date", nullable = false)
+  private LocalDate releaseDate;
 
   @Column(columnDefinition = "TEXT")
   private String description;
@@ -47,7 +52,7 @@ public class Movie {
     this.title = title;
     this.durationMinutes = durationMinutes;
     this.genre = genre;
-    this.realeseDate = realeseDate;
+    this.releaseDate = realeseDate;
     this.description = description;
   }
 
@@ -83,12 +88,16 @@ public class Movie {
     this.genre = genre;
   }
 
-  public LocalDate getRealeseDate() {
-    return realeseDate;
+  public LocalDate getReleaseDate() {
+    return releaseDate;
   }
 
-  public void setRealeseDate(LocalDate realeseDate) {
-    this.realeseDate = realeseDate;
+  public void setReleaseDate(LocalDate realeseDate) {
+    this.releaseDate = realeseDate;
+  }
+
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
@@ -103,7 +112,7 @@ public class Movie {
     result = prime * result + ((title == null) ? 0 : title.hashCode());
     result = prime * result + ((durationMinutes == null) ? 0 : durationMinutes.hashCode());
     result = prime * result + ((genre == null) ? 0 : genre.hashCode());
-    result = prime * result + ((realeseDate == null) ? 0 : realeseDate.hashCode());
+    result = prime * result + ((releaseDate == null) ? 0 : releaseDate.hashCode());
     result = prime * result + ((description == null) ? 0 : description.hashCode());
     return result;
   }
@@ -137,10 +146,10 @@ public class Movie {
         return false;
     } else if (!genre.equals(other.genre))
       return false;
-    if (realeseDate == null) {
-      if (other.realeseDate != null)
+    if (releaseDate == null) {
+      if (other.releaseDate != null)
         return false;
-    } else if (!realeseDate.equals(other.realeseDate))
+    } else if (!releaseDate.equals(other.releaseDate))
       return false;
     if (description == null) {
       if (other.description != null)
