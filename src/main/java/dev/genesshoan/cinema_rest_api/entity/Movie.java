@@ -18,25 +18,25 @@ import jakarta.validation.constraints.NotNull;
 public class Movie {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  Long id;
+  private Long id;
 
   @NotBlank
   @Column(nullable = false, length = 255)
-  String title;
+  private String title;
 
   @NotNull
   @Column(name = "duration_minutes", nullable = false)
-  Integer durationMinutes;
+  private Integer durationMinutes;
 
   @Column(length = 30)
-  String genre;
+  private String genre;
 
   @NotNull
   @Column(name = "realese_date", nullable = false)
-  LocalDate realeseDate;
+  private LocalDate realeseDate;
 
   @Column(columnDefinition = "TEXT")
-  String description;
+  private String description;
 
   public Movie() {
   }
