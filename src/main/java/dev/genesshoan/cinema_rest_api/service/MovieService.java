@@ -28,10 +28,6 @@ public class MovieService {
   // TODO: Implement public List<Movies> getMoviesInTheaters() when Showtime is
   // ready :)
 
-  public List<Movie> getAllMovies() {
-    return movieRepository.findAll();
-  }
-
   public Movie getMovieById(Long id) {
     return movieRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Movie with id " + id + " was not found"));
