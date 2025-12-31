@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 !docker-compose.yml
 !pom.xml
+!**/application.properties
 
 ### STS ###
 .apt_generated
