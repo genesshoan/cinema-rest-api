@@ -39,6 +39,7 @@ public class Movie {
   private Integer durationMinutes;
 
   @NotBlank(message = "{movie.genre.required}")
+  @Size(max = 30, message = "movie.genre.size")
   @Column(nullable = false, length = 30)
   private String genre;
 
