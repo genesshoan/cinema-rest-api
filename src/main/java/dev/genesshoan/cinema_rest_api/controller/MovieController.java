@@ -16,9 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.genesshoan.cinema_rest_api.entity.Movie;
 import dev.genesshoan.cinema_rest_api.service.MovieService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/movies")
+@Validated
 public class MovieController {
   private final MovieService movieService;
 
@@ -28,24 +32,27 @@ public class MovieController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Movie createMovie(@Validated @RequestBody Movie movie) {
+  public Movie createMovie(@Valid @RequestBody Movie movie) {
     return movieService.createMovie(movie);
   }
 
   @GetMapping("/{id}")
-  public Movie getMovieById(@PathVariable Long id) {
+  public Movie getMovieById(@PathVariable @Min(value = 1, message = "{id.min}") Long id) {
     return movieService.getMovieById(id);
   }
 
   @GetMapping
   public List<Movie> search(
-      @RequestParam(required = false) String title,
-      @RequestParam(required = false) String genre) {
+      @RequestParam(required = false) @Size(min = 1, max = 255, message = "{movie.title.size}") String title,
+
+      @RequestParam(required = false) @Size(min = 1, max = 30, message = "{movie.genre.size}") String genre) {
     return movieService.search(title, genre);
   }
 
   @PutMapping("/{id}")
-  public Movie updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
+  public Movie updateMovie(
+      @PathVariable @Min(value = 1, message = "{id.min}") Long id,
+      @Valid @RequestBody Movie movie) {
     return movieService.updateMovie(id, movie);
   }
 }
