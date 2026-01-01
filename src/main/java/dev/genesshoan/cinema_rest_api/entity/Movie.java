@@ -29,11 +29,11 @@ public class Movie {
   private Long id;
 
   @NotBlank(message = "{movie.title.required}")
-  @Size(min = 1, max = 255, message = "{movie.title. size}")
+  @Size(min = 1, max = 255, message = "{movie.title.size}")
   @Column(nullable = false, length = 255)
   private String title;
 
-  @NotNull(message = "{movie. durationMinutes.required}")
+  @NotNull(message = "{movie.durationMinutes.required}")
   @Min(value = 1, message = "{movie.durationMinutes.min}")
   @Column(name = "duration_minutes", nullable = false)
   private Integer durationMinutes;
@@ -55,12 +55,12 @@ public class Movie {
   }
 
   public Movie(Long id, @NotBlank String title, @NotNull Integer durationMinutes, String genre,
-      @NotNull LocalDate realeseDate, String description) {
+      @NotNull LocalDate releaseDate, String description) {
     this.id = id;
     this.title = title;
     this.durationMinutes = durationMinutes;
     this.genre = genre;
-    this.releaseDate = realeseDate;
+    this.releaseDate = releaseDate;
     this.description = description;
   }
 
@@ -118,10 +118,7 @@ public class Movie {
     int result = 1;
     result = prime * result + ((id == null) ? 0 : id.hashCode());
     result = prime * result + ((title == null) ? 0 : title.hashCode());
-    result = prime * result + ((durationMinutes == null) ? 0 : durationMinutes.hashCode());
-    result = prime * result + ((genre == null) ? 0 : genre.hashCode());
     result = prime * result + ((releaseDate == null) ? 0 : releaseDate.hashCode());
-    result = prime * result + ((description == null) ? 0 : description.hashCode());
     return result;
   }
 
@@ -144,25 +141,10 @@ public class Movie {
         return false;
     } else if (!title.equals(other.title))
       return false;
-    if (durationMinutes == null) {
-      if (other.durationMinutes != null)
-        return false;
-    } else if (!durationMinutes.equals(other.durationMinutes))
-      return false;
-    if (genre == null) {
-      if (other.genre != null)
-        return false;
-    } else if (!genre.equals(other.genre))
-      return false;
     if (releaseDate == null) {
       if (other.releaseDate != null)
         return false;
     } else if (!releaseDate.equals(other.releaseDate))
-      return false;
-    if (description == null) {
-      if (other.description != null)
-        return false;
-    } else if (!description.equals(other.description))
       return false;
     return true;
   }
