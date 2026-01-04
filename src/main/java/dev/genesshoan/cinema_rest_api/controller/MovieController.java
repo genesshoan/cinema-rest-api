@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.genesshoan.cinema_rest_api.entity.Movie;
+import dev.genesshoan.cinema_rest_api.dto.MovieRequestDTO;
+import dev.genesshoan.cinema_rest_api.dto.MovieResponseDTO;
 import dev.genesshoan.cinema_rest_api.service.MovieService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -32,17 +33,17 @@ public class MovieController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Movie createMovie(@Valid @RequestBody Movie movie) {
-    return movieService.createMovie(movie);
+  public MovieResponseDTO createMovie(@Valid @RequestBody MovieRequestDTO movieRequestDTO) {
+    return movieService.createMovie(movieRequestDTO);
   }
 
   @GetMapping("/{id}")
-  public Movie getMovieById(@PathVariable @Min(value = 1, message = "{id.min}") Long id) {
+  public MovieResponseDTO getMovieById(@PathVariable @Min(value = 1, message = "{id.min}") Long id) {
     return movieService.getMovieById(id);
   }
 
   @GetMapping
-  public Page<Movie> search(
+  public Page<MovieResponseDTO> search(
       @RequestParam(required = false) @Size(min = 1, max = 255, message = "{movie.title.size}") String title,
       @RequestParam(required = false) @Size(min = 1, max = 30, message = "{movie.genre.size}") String genre,
       Pageable pageable) {
@@ -50,9 +51,9 @@ public class MovieController {
   }
 
   @PutMapping("/{id}")
-  public Movie updateMovie(
+  public MovieResponseDTO updateMovie(
       @PathVariable @Min(value = 1, message = "{id.min}") Long id,
-      @Valid @RequestBody Movie movie) {
-    return movieService.updateMovie(id, movie);
+      @Valid @RequestBody MovieRequestDTO movieRequestDTO) {
+    return movieService.updateMovie(id, movieRequestDTO);
   }
 }

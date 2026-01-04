@@ -9,11 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Size;
 
 /**
  * Represents a movie available in the system.
@@ -28,35 +23,26 @@ public class Movie {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @NotBlank(message = "{movie.title.required}")
-  @Size(min = 1, max = 255, message = "{movie.title.size}")
   @Column(nullable = false, length = 255)
   private String title;
 
-  @NotNull(message = "{movie.durationMinutes.required}")
-  @Min(value = 1, message = "{movie.durationMinutes.min}")
   @Column(name = "duration_minutes", nullable = false)
   private Integer durationMinutes;
 
-  @NotBlank(message = "{movie.genre.required}")
-  @Size(max = 30, message = "movie.genre.size")
   @Column(nullable = false, length = 30)
   private String genre;
 
-  @NotNull(message = "{movie.releaseDate.required}")
-  @PastOrPresent(message = "{movie.releaseDate.past}")
   @Column(name = "release_date", nullable = false)
   private LocalDate releaseDate;
 
-  @Size(max = 5000, message = "{movie.description.size}")
   @Column(columnDefinition = "TEXT")
   private String description;
 
   public Movie() {
   }
 
-  public Movie(Long id, @NotBlank String title, @NotNull Integer durationMinutes, String genre,
-      @NotNull LocalDate releaseDate, String description) {
+  public Movie(Long id, String title, Integer durationMinutes, String genre,
+      LocalDate releaseDate, String description) {
     this.id = id;
     this.title = title;
     this.durationMinutes = durationMinutes;

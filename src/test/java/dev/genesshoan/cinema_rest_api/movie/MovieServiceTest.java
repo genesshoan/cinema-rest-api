@@ -29,27 +29,30 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import dev.genesshoan.cinema_rest_api.dto.MovieRequestDTO;
+import dev.genesshoan.cinema_rest_api.dto.MovieResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Movie;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
+import dev.genesshoan.cinema_rest_api.mapper.MovieMapper;
 import dev.genesshoan.cinema_rest_api.repository.MovieRepository;
 import dev.genesshoan.cinema_rest_api.service.MovieService;
 
 @ExtendWith(MockitoExtension.class)
 public class MovieServiceTest {
   @Mock
-  MovieRepository movieRepository;
+  private MovieRepository movieRepository;
+
+  @Mock
+  private MovieMapper movieMapper;
 
   @InjectMocks
-  MovieService movieService;
+  private MovieService movieService;
 
-  Movie movie;
-
-  Pageable pageable = PageRequest.of(0, 2);
-
-  List<Movie> movies;
-
-  Page<Movie> page;
+  private MovieRequestDTO requestDTO;
+  private MovieResponseDTO responseDTO;
+  private Movie movie;
+  private Pageable pageable;
 
   @BeforeEach
   void setUp() {
@@ -62,112 +65,147 @@ public class MovieServiceTest {
     movie.setDurationMinutes(101);
     movie.setReleaseDate(LocalDate.of(1995, 1, 27));
 
-    movies = List.of(
-        movie,
-        movie);
+    requestDTO = new MovieRequestDTO(
+        "Before Sunrise",
+        101,
+        "Romance",
+        LocalDate.of(1995, 1, 27),
+        "A young man and woman meet on a train in Europe and spend one romantic evening together in Vienna");
 
-    page = new PageImpl<>(movies, pageable, movies.size());
+    responseDTO = new MovieResponseDTO(
+        1L,
+        "Before Sunrise",
+        101,
+        "Romance",
+        LocalDate.of(1995, 1, 27),
+        "A young man and woman meet on a train in Europe and spend one romantic evening together in Vienna");
+
+    pageable = PageRequest.of(0, 2);
   }
 
   @Test
-  @DisplayName("If the movie does not already exists, should save the movie")
-  void createUser_WhenDoesNotExists_ShouldSaveTheMovie() {
-    when(movieRepository.existsByTitleAndReleaseDate(
-        movie.getTitle(), movie.getReleaseDate())).thenReturn(false);
+  @DisplayName("If the movie does not already exist, should save the movie and return MovieResponseDTO")
+  void createMovie_WhenDoesNotExist_ShouldSaveTheMovie() {
+    when(movieMapper.toEntity(requestDTO)).thenReturn(movie);
+    when(movieRepository.existsByTitleAndReleaseDate("Before Sunrise", LocalDate.of(1995, 1, 27)))
+        .thenReturn(false);
+    when(movieRepository.save(any(Movie.class))).thenReturn(movie);
+    when(movieMapper.toDto(movie)).thenReturn(responseDTO);
 
-    when(movieRepository.save(movie)).thenReturn(movie);
-
-    Movie result = movieService.createMovie(movie);
+    MovieResponseDTO result = movieService.createMovie(requestDTO);
 
     assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(1L);
-    assertThat(result.getTitle()).isEqualTo("Before Sunrise");
-    assertThat(result.getGenre()).isEqualTo("Romance");
-    assertThat(result.getDescription())
-        .isEqualTo("A young man and woman meet on a train in Europe and spend one romantic evening together in Vienna");
-    assertThat(result.getDurationMinutes()).isEqualTo(101);
-    assertThat(result.getReleaseDate()).isEqualTo(LocalDate.of(1995, 1, 27));
+    assertThat(result.id()).isEqualTo(1L);
+    assertThat(result.title()).isEqualTo("Before Sunrise");
+    assertThat(result.genre()).isEqualTo("Romance");
+    assertThat(result.durationMinutes()).isEqualTo(101);
+    assertThat(result.releaseDate()).isEqualTo(LocalDate.of(1995, 1, 27));
 
-    verify(movieRepository, times(1))
-        .existsByTitleAndReleaseDate(movie.getTitle(), movie.getReleaseDate());
-    verify(movieRepository, times(1)).save(movie);
+    verify(movieMapper).toEntity(requestDTO);
+    verify(movieRepository).existsByTitleAndReleaseDate("Before Sunrise", LocalDate.of(1995, 1, 27));
+    verify(movieRepository).save(any(Movie.class));
+    verify(movieMapper).toDto(movie);
   }
 
   @Test
-  @DisplayName("If the movie already exists, should throw an exception")
-  void createMovie_WhenNotExists_ShouldThrowAnException() {
-    when(movieRepository.existsByTitleAndReleaseDate(
-        movie.getTitle(),
-        movie.getReleaseDate())).thenReturn(false);
+  @DisplayName("If the movie already exists, should throw ResourceAlreadyExistsException")
+  void createMovie_WhenAlreadyExists_ShouldThrowException() {
+    when(movieMapper.toEntity(requestDTO)).thenReturn(movie);
+    when(movieRepository.existsByTitleAndReleaseDate("Before Sunrise", LocalDate.of(1995, 1, 27)))
+        .thenReturn(true);
 
-    assertThatThrownBy(() -> movieService.createMovie(movie))
+    assertThatThrownBy(() -> movieService.createMovie(requestDTO))
         .isInstanceOf(ResourceAlreadyExistsException.class)
         .hasMessageContaining("Movie with title Before Sunrise already exists");
 
+    verify(movieMapper).toEntity(requestDTO);
+    verify(movieRepository).existsByTitleAndReleaseDate(anyString(), any(LocalDate.class));
     verify(movieRepository, never()).save(any(Movie.class));
-
-    verify(movieRepository, times(1)).existsByTitleAndReleaseDate(anyString(), any(LocalDate.class));
+    verify(movieMapper, never()).toDto(any(Movie.class));
   }
 
   @Test
-  @DisplayName("If exists a movie with the given id, then should return the movie")
-  void getMovieById_WhenExists_ShouldReturnTheMovie() {
-    when(movieRepository.findById(1L))
-        .thenReturn(Optional.of(movie));
+  @DisplayName("If a movie exists with the given id, should return MovieResponseDTO")
+  void getMovieById_WhenExists_ShouldReturnMovieResponseDTO() {
+    when(movieRepository.findById(1L)).thenReturn(Optional.of(movie));
+    when(movieMapper.toDto(movie)).thenReturn(responseDTO);
 
-    Movie result = movieService.getMovieById(1L);
+    MovieResponseDTO result = movieService.getMovieById(1L);
 
-    assertThat(result.getId()).isEqualTo(1L);
-    assertThat(result.getTitle()).isEqualTo(("Before Sunrise"));
+    assertThat(result).isNotNull();
+    assertThat(result.id()).isEqualTo(1L);
+    assertThat(result.title()).isEqualTo("Before Sunrise");
+
+    verify(movieRepository).findById(1L);
+    verify(movieMapper).toDto(movie);
   }
 
   @Test
-  @DisplayName("If does not exists a movie with the given id, then should throw a exception")
-  void getMovieById_WhenNotExists_ShouldThrowAnException() {
-    when(movieRepository.findById(1L))
-        .thenReturn(Optional.empty());
+  @DisplayName("If a movie does not exist with the given id, should throw ResourceNotFoundException")
+  void getMovieById_WhenNotExists_ShouldThrowException() {
+    when(movieRepository.findById(1L)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> movieService.getMovieById(1L))
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("Movie with id 1 was not found");
+
+    verify(movieRepository).findById(1L);
+    verify(movieMapper, never()).toDto(any(Movie.class));
   }
 
   @Test
-  @DisplayName("If exists a movie with the given id, then should return the movie")
-  void updateMovie_WhenExists_ShouldReturnAMovie() {
-    when(movieRepository.findById(1L))
-        .thenReturn(Optional.of(movie));
+  @DisplayName("If a movie exists, should update and return MovieResponseDTO")
+  void updateMovie_WhenExists_ShouldReturnUpdatedMovie() {
+    MovieRequestDTO updateRequest = new MovieRequestDTO(
+        "Before Sunrise - Updated",
+        120,
+        "Drama",
+        LocalDate.of(1995, 1, 27),
+        "Updated description");
 
     Movie updatedMovie = new Movie();
     updatedMovie.setId(1L);
-    updatedMovie.setTitle("Before Sunrise");
-    updatedMovie.setDescription("New description");
-    updatedMovie.setDurationMinutes(30);
-    updatedMovie.setGenre("New genre");
-    updatedMovie.setReleaseDate(LocalDate.now());
+    updatedMovie.setTitle("Before Sunrise - Updated");
+    updatedMovie.setDurationMinutes(120);
+    updatedMovie.setGenre("Drama");
+    updatedMovie.setReleaseDate(LocalDate.of(1995, 1, 27));
+    updatedMovie.setDescription("Updated description");
 
-    Movie result = movieService.updateMovie(1L, updatedMovie);
+    MovieResponseDTO updatedResponse = new MovieResponseDTO(
+        1L,
+        "Before Sunrise - Updated",
+        120,
+        "Drama",
+        LocalDate.of(1995, 1, 27),
+        "Updated description");
 
-    assertThat(result.getId()).isEqualTo(updatedMovie.getId());
-    assertThat(result.getTitle()).isEqualTo(updatedMovie.getTitle());
-    assertThat(result.getDescription()).isEqualTo(updatedMovie.getDescription());
-    assertThat(result.getDurationMinutes()).isEqualTo(updatedMovie.getDurationMinutes());
-    assertThat(result.getGenre()).isEqualTo(updatedMovie.getGenre());
-    assertThat(result.getReleaseDate()).isEqualTo(updatedMovie.getReleaseDate());
+    when(movieRepository.findById(1L)).thenReturn(Optional.of(movie));
+    when(movieRepository.save(any(Movie.class))).thenReturn(updatedMovie);
+    when(movieMapper.toDto(updatedMovie)).thenReturn(updatedResponse);
 
-    verify(movieRepository, times(1)).save(any(Movie.class));
+    MovieResponseDTO result = movieService.updateMovie(1L, updateRequest);
+
+    assertThat(result).isNotNull();
+    assertThat(result.id()).isEqualTo(1L);
+    assertThat(result.title()).isEqualTo("Before Sunrise - Updated");
+    assertThat(result.durationMinutes()).isEqualTo(120);
+    assertThat(result.genre()).isEqualTo("Drama");
+
+    verify(movieRepository).findById(1L);
+    verify(movieRepository).save(any(Movie.class));
+    verify(movieMapper).toDto(updatedMovie);
   }
 
   @Test
-  @DisplayName("If does not exists a movie with the given id, then should throw a exception")
-  void updateMovie_WhenExists_ShouldReturnAnException() {
-    when(movieRepository.findById(1L))
-        .thenReturn(Optional.empty());
+  @DisplayName("If a movie does not exist, update should throw ResourceNotFoundException")
+  void updateMovie_WhenNotExists_ShouldThrowException() {
+    when(movieRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> movieService.updateMovie(1L, movie))
+    assertThatThrownBy(() -> movieService.updateMovie(1L, requestDTO))
         .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessageContaining("Movie with id 1 does not exists");
+        .hasMessageContaining("Movie with id 1 does not exist");
 
+    verify(movieRepository).findById(1L);
     verify(movieRepository, never()).save(any(Movie.class));
   }
 
@@ -179,24 +217,25 @@ public class MovieServiceTest {
         Arguments.of("Matrix", "Sci-Fi"));
   }
 
-  @Test
   @ParameterizedTest
   @MethodSource("searchArguments")
+  @DisplayName("Search should return Page of MovieResponseDTO")
   void search_ShouldReturnExpectedPage(String title, String genre) {
+    List<Movie> movies = List.of(movie, movie);
+    Page<Movie> moviePage = new PageImpl<>(movies, pageable, movies.size());
 
-    Page<Movie> page = new PageImpl<>(movies, pageable, movies.size());
+    when(movieRepository.search(title, genre, pageable)).thenReturn(moviePage);
+    when(movieMapper.toDto(any(Movie.class))).thenReturn(responseDTO);
 
-    when(movieRepository.search(title, genre, pageable))
-        .thenReturn(page);
+    Page<MovieResponseDTO> result = movieService.search(title, genre, pageable);
 
-    Page<Movie> result = movieService.search(title, genre, pageable);
+    assertThat(result).isNotNull();
+    assertThat(result.getContent()).hasSize(2);
+    assertThat(result.getContent().get(0).title()).isEqualTo("Before Sunrise");
+    assertThat(result.getNumber()).isEqualTo(0);
+    assertThat(result.getSize()).isEqualTo(2);
 
-    assertThat(result.getContent().size()).isEqualTo(movies.size());
-    assertThat(result.getContent().get(0).getTitle())
-        .isEqualTo(movies.get(0).getTitle());
-    assertThat(result.getNumber()).isEqualTo(page.getNumber());
-    assertThat(result.getSize()).isEqualTo(page.getSize());
-
-    verify(movieRepository, times(1)).search(title, genre, pageable);
+    verify(movieRepository).search(title, genre, pageable);
+    verify(movieMapper, times(2)).toDto(any(Movie.class));
   }
 }
