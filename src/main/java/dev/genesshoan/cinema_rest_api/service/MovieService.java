@@ -1,7 +1,7 @@
 package dev.genesshoan.cinema_rest_api.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import dev.genesshoan.cinema_rest_api.entity.Movie;
@@ -48,7 +48,7 @@ public class MovieService {
 
   // TODO: Implement public Movie deleteMovieById(Long id) when showtime is ready
 
-  public List<Movie> search(String title, String genre) {
-    return movieRepository.search(title, genre);
+  public Page<Movie> search(String title, String genre, Pageable pageable) {
+    return movieRepository.search(title, genre, pageable);
   }
 }

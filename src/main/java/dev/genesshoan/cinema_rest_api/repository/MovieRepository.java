@@ -1,8 +1,9 @@
 package dev.genesshoan.cinema_rest_api.repository;
 
 import java.time.LocalDate;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,8 +20,9 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
         WHERE (:title IS NULL OR LOWER(m.title) LIKE LOWER(CONCAT('%', :title, '%')))
           AND (:genre IS NULL OR LOWER(m.genre) LIKE LOWER(CONCAT('%', :genre, '%')))
       """)
-  public List<Movie> search(
+  public Page<Movie> search(
       @Param("title") String title,
-      @Param("genre") String genre);
+      @Param("genre") String genre,
+      Pageable pageable);
 
 }

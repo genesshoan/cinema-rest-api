@@ -1,7 +1,7 @@
 package dev.genesshoan.cinema_rest_api.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,11 +42,11 @@ public class MovieController {
   }
 
   @GetMapping
-  public List<Movie> search(
+  public Page<Movie> search(
       @RequestParam(required = false) @Size(min = 1, max = 255, message = "{movie.title.size}") String title,
-
-      @RequestParam(required = false) @Size(min = 1, max = 30, message = "{movie.genre.size}") String genre) {
-    return movieService.search(title, genre);
+      @RequestParam(required = false) @Size(min = 1, max = 30, message = "{movie.genre.size}") String genre,
+      Pageable pageable) {
+    return movieService.search(title, genre, pageable);
   }
 
   @PutMapping("/{id}")
