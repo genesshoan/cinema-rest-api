@@ -31,12 +31,12 @@ public class RoomController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public RoomResponseDTO createMovie(@Valid @RequestBody RoomRequestDTO roomRequestDTO) {
+  public RoomResponseDTO createRoom(@Valid @RequestBody RoomRequestDTO roomRequestDTO) {
     return roomService.createRoom(roomRequestDTO);
   }
 
   @GetMapping
-  public Page<RoomResponseDTO> getAllMovies(Pageable pageable) {
+  public Page<RoomResponseDTO> getAllRooms(Pageable pageable) {
     return roomService.getAllRooms(pageable);
   }
 

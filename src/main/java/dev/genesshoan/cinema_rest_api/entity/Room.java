@@ -15,16 +15,16 @@ import jakarta.persistence.Table;
 public class Room {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  Long id;
+  private Long id;
 
   @Column(nullable = false, length = 255)
-  String name;
+  private String name;
 
   @Column(nullable = false)
-  Integer rows;
+  private Integer rows;
 
   @Column(name = "seats_per_row", nullable = false)
-  Integer seatsPerRow;
+  private Integer seatsPerRow;
 
   public Room() {
   }
