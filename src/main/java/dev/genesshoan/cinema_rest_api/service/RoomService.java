@@ -1,5 +1,7 @@
 package dev.genesshoan.cinema_rest_api.service;
 
+import java.util.Objects;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,7 +50,6 @@ public class RoomService {
    * @return the created room data
    * @throws ResourceAlreadyExistsException if a movie with the given 'id' already
    *                                        exists
-   * @throws IllegalArgumentException       if 'roomRequestDTO' is {@code null}
    */
   public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) {
     Room room = roomMapper.toEntity(roomRequestDTO);
@@ -66,7 +67,6 @@ public class RoomService {
    *
    * @param pageable pagination and sorting parameters
    * @return a page with all rooms in the system
-   * @throws IllegalArgumentException if 'pageable' is {@code null}
    */
   public Page<RoomResponseDTO> getAllRooms(Pageable pageable) {
     return roomRepository.findAll(pageable).map(roomMapper::toDto);
@@ -79,7 +79,6 @@ public class RoomService {
    * @return the room with the specified 'id'
    * @throws ResourceNotFoundException if no room with the given 'id' does not
    *                                   exists
-   * @throws IllegalArgumentException  if 'id' is {@code null}
    */
   public RoomResponseDTO getRoomById(Long id) {
     Room room = roomRepository.findById(id)
@@ -97,11 +96,20 @@ public class RoomService {
    * @param id             the 'id' of the room to be changed
    * @param roomRequestDTO the new room data
    * @return the updated room data
-   * @throws ResourceNotFoundException if no room with 'id' does not exists
+   * @throws ResourceNotFoundException      if no room with 'id' does not exists
+   * @throws ResourceAlreadyExistsException if already exists a room with the
+   *                                        given new name
    */
   public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO) {
     Room existing = roomRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " was not found"));
+
+    boolean nameIsChanging = !Objects.equals(existing.getName(), roomRequestDTO.name());
+
+    if (nameIsChanging && roomRepository.existsByName(roomRequestDTO.name())) {
+      throw new ResourceAlreadyExistsException(
+          String.format("A room with name '%s' already exits, the changes cannot be applied", roomRequestDTO.name()));
+    }
 
     existing.setName(roomRequestDTO.name());
     existing.setRows(roomRequestDTO.rows());

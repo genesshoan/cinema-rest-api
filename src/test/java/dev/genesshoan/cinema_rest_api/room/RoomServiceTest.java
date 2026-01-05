@@ -3,6 +3,7 @@ package dev.genesshoan.cinema_rest_api.room;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -116,7 +117,7 @@ public class RoomServiceTest {
 
   @Test
   @DisplayName("Should return all rooms")
-  void getRoomById() {
+  void getAllRooms() {
     List<Room> rooms = List.of(room, room);
     Page<Room> page = new PageImpl<>(rooms, pageable, rooms.size());
 
@@ -166,5 +167,55 @@ public class RoomServiceTest {
         .hasMessageContaining("Room with id 1 was not found");
 
     verify(roomMapper, never()).toDto(any());
+  }
+
+  @Test
+  @DisplayName("If a room with the given id exists, and the name does not change, should update a room")
+  void updateRoom_WhenExits_ShouldUpdateTheRoom() {
+    when(roomRepository.findById(room.getId()))
+        .thenReturn(Optional.of(room));
+
+    when(roomRepository.save(any(Room.class)))
+        .thenReturn(room);
+
+    when(roomMapper.toDto(any(Room.class)))
+        .thenReturn(roomResponseDTO);
+
+    roomService.updateRoom(room.getId(), roomRequestDTO);
+
+    verify(roomRepository, times(1)).save(any(Room.class));
+    verify(roomMapper, times(1)).toDto(any(Room.class));
+  }
+
+  @Test
+  @DisplayName("If the new name is already in use, should throw an exception")
+  void updateRoom_WhenNameIsAlredyInUse_ShouldThrowAnException() {
+    when(roomRepository.findById(room.getId()))
+        .thenReturn(Optional.of(room));
+
+    roomRequestDTO = new RoomRequestDTO(
+        "Distinct",
+        12,
+        10);
+
+    when(roomRepository.existsByName(anyString()))
+        .thenReturn(true);
+
+    assertThatThrownBy(() -> roomService.updateRoom(room.getId(), roomRequestDTO))
+        .isInstanceOf(ResourceAlreadyExistsException.class)
+        .hasMessageContaining("A room with name 'Distinct' already exits, the changes cannot be applied");
+
+    verify(roomRepository, never()).save(any(Room.class));
+    verify(roomMapper, never()).toDto(any(Room.class));
+  }
+
+  @Test
+  @DisplayName("If no movie with the given id exists, should throw an exception")
+  void updateRoom_WhenNotExists_ShouldThrownAnException() {
+    when(roomRepository.findById(room.getId()))
+        .thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> roomService.updateRoom(room.getId(), roomRequestDTO))
+        .isInstanceOf(ResourceNotFoundException.class);
   }
 }
