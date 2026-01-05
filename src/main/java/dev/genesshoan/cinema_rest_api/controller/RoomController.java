@@ -19,6 +19,39 @@ import dev.genesshoan.cinema_rest_api.service.RoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
+/**
+ * REST controller for managing cinema rooms.
+ *
+ * <p>
+ * This controller exposes HTTP endpoints to create, retrieve (single and
+ * paginated), and update room resources used by the cinema system. All
+ * endpoints accept and return JSON and follow RESTful conventions.
+ * </p>
+ *
+ * <p>
+ * Base URL: {@code /rooms}
+ * </p>
+ *
+ * <p>
+ * Supported operations:
+ * <ul>
+ *   <li>Create a new room (POST /rooms)</li>
+ *   <li>Retrieve a paginated list of rooms (GET /rooms)</li>
+ *   <li>Retrieve a single room by id (GET /rooms/{id})</li>
+ *   <li>Update an existing room (PUT /rooms/{id})</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * Input validation is performed on request DTOs; invalid requests return
+ * appropriate HTTP error responses with validation details.
+ * </p>
+ *
+ * @see RoomService
+ * @see RoomRequestDTO
+ * @see RoomResponseDTO
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/rooms")
 @Validated
@@ -29,22 +62,47 @@ public class RoomController {
     this.roomService = roomService;
   }
 
+  /**
+   * Create a new room.
+   *
+   * @param roomRequestDTO the room payload to create
+   * @return the created room as a response DTO
+   */
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public RoomResponseDTO createRoom(@Valid @RequestBody RoomRequestDTO roomRequestDTO) {
     return roomService.createRoom(roomRequestDTO);
   }
 
+  /**
+   * Retrieve a paginated list of rooms.
+   *
+   * @param pageable pagination and sorting information
+   * @return a page of room response DTOs
+   */
   @GetMapping
   public Page<RoomResponseDTO> getAllRooms(Pageable pageable) {
     return roomService.getAllRooms(pageable);
   }
 
+  /**
+   * Retrieve a single room by its identifier.
+   *
+   * @param id the room id (must be >= 1)
+   * @return the room response DTO
+   */
   @GetMapping("/{id}")
   public RoomResponseDTO getRoomById(@PathVariable @Min(value = 1, message = "{id.min}") Long id) {
     return roomService.getRoomById(id);
   }
 
+  /**
+   * Update an existing room.
+   *
+   * @param id the id of the room to update
+   * @param roomRequestDTO the updated room payload
+   * @return the updated room as a response DTO
+   */
   @PutMapping("/{id}")
   public RoomResponseDTO updateRoom(
       @PathVariable Long id,

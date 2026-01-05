@@ -8,21 +8,62 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
+/**
+ * JPA entity representing a room in the cinema system.
+ * 
+ * A room contains basic information such as name, rows and seats per rows.
+ * Movies are uniquely identified by name.
+ * 
+ * <p>
+ * Database table: {@code rooms}
+ * </p>
+ * 
+ * <p>
+ * Unique constraints:
+ * <ul>
+ * <li>Name must be unique</li>
+ * </ul>
+ * </p>
+ * 
+ * <p>
+ * Note: This entity does not include showtime information.
+ * See {@link Showtime} for scheduling details.
+ * </p>
+ * 
+ * @see Showtime
+ * @since 1.0.0
+ */
 @Entity
 @Table(name = "rooms", indexes = {
     @Index(name = "idx_room_name", columnList = "name", unique = true)
 })
 public class Room {
+  /**
+   * The unique identifier for this room.
+   *
+   * Generated automatically by the database using an identity strategy.
+   */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  /**
+   * A unique identifier for this room.
+   *
+   * Maximum length is 255 characters.
+   */
   @Column(nullable = false, length = 255)
   private String name;
 
+  /**
+   * Number of rows of this room.
+   */
   @Column(nullable = false)
   private Integer rows;
 
+  /**
+   * Number of seats per row.
+   */
   @Column(name = "seats_per_row", nullable = false)
   private Integer seatsPerRow;
 
