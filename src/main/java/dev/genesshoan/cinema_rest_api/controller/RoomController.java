@@ -32,7 +32,7 @@ public class RoomController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public RoomResponseDTO createMovie(@Valid @RequestBody RoomRequestDTO roomRequestDTO) {
-    return roomService.createMovie(roomRequestDTO);
+    return roomService.createRoom(roomRequestDTO);
   }
 
   @GetMapping

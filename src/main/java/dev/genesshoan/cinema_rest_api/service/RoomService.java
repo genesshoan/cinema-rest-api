@@ -22,10 +22,10 @@ public class RoomService {
     this.roomMapper = roomMapper;
   }
 
-  public RoomResponseDTO createMovie(RoomRequestDTO roomRequestDTO) {
+  public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) {
     Room room = roomMapper.toEntity(roomRequestDTO);
 
-    if (!roomRepository.existsByName(room.getName())) {
+    if (roomRepository.existsByName(room.getName())) {
       throw new ResourceAlreadyExistsException("Room with name " + room.getName() + " already exists");
     }
 
