@@ -11,30 +11,87 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 /**
- * Represents a movie available in the system.
- * Does not include showtimes or schedules (see {@link Showtime}).
+ * JPA entity representing a movie in the cinema system.
+ * 
+ * A movie contains basic information such as title, duration, genre,
+ * release date, and description. Movies are uniquely identified by
+ * the combination of title and release date.
+ * 
+ * <p>
+ * Database table: {@code movies}
+ * </p>
+ * 
+ * <p>
+ * Unique constraints:
+ * <ul>
+ * <li>Combination of title and release date must be unique</li>
+ * </ul>
+ * </p>
+ * 
+ * <p>
+ * Note: This entity does not include showtime information.
+ * See {@link Showtime} for scheduling details.
+ * </p>
+ * 
+ * @see Showtime
+ * @since 1.0.0
  */
 @Entity
 @Table(name = "movies", indexes = {
     @Index(name = "idx_movie_title", columnList = "title, release_date", unique = true)
 })
 public class Movie {
+  /**
+   * The unique identifier for this movie.
+   *
+   * Generated automatically by the database using an identity strategy.
+   */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  /**
+   * The movie title.
+   * 
+   * Maximum length is 255 characters. Combined with {@link #releaseDate},
+   * this field must be unique across all movies.
+   */
   @Column(nullable = false, length = 255)
   private String title;
 
+  /**
+   * The duration of the movie in minutes.
+   * 
+   * Must be a positive integer representing the total runtime.
+   */
   @Column(name = "duration_minutes", nullable = false)
   private Integer durationMinutes;
 
+  /**
+   * The movie genre or category.
+   * 
+   * Examples: "Action", "Drama", "Comedy", "Romance", "Horror".
+   * Maximum length is 30 characters.
+   */
   @Column(nullable = false, length = 30)
   private String genre;
 
+  /**
+   * The official release date of the movie.
+   * 
+   * Combined with {@link #title}, this field must be unique.
+   * This allows the same movie title to exist if released on different dates
+   * (e.g., original and remake).
+   */
   @Column(name = "release_date", nullable = false)
   private LocalDate releaseDate;
 
+  /**
+   * Optional detailed description or synopsis of the movie.
+   * 
+   * Stored as TEXT in the database with no practical length limit.
+   * Can be null.
+   */
   @Column(columnDefinition = "TEXT")
   private String description;
 
