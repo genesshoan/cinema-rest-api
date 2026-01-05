@@ -38,6 +38,14 @@ import dev.genesshoan.cinema_rest_api.mapper.MovieMapper;
 import dev.genesshoan.cinema_rest_api.repository.MovieRepository;
 import dev.genesshoan.cinema_rest_api.service.MovieService;
 
+/**
+ * Unit tests for {@link MovieService}.
+ *
+ * <p>These tests verify the behavior of the service layer responsible for
+ * creating, retrieving, updating, and searching movies. Each test is focused
+ * on a single behavior and uses Mockito to isolate the service from its
+ * dependencies.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 public class MovieServiceTest {
   @Mock
@@ -83,6 +91,10 @@ public class MovieServiceTest {
     pageable = PageRequest.of(0, 2);
   }
 
+  /**
+   * Verifies that when a movie does not exist, the service persists the
+   * movie and returns a populated {@link MovieResponseDTO}.
+   */
   @Test
   @DisplayName("If the movie does not already exist, should save the movie and return MovieResponseDTO")
   void createMovie_WhenDoesNotExist_ShouldSaveTheMovie() {
@@ -107,6 +119,11 @@ public class MovieServiceTest {
     verify(movieMapper).toDto(movie);
   }
 
+  /**
+   * Verifies that attempting to create a movie that already exists causes a
+   * {@link ResourceAlreadyExistsException} to be thrown and no save operation
+   * to occur.
+   */
   @Test
   @DisplayName("If the movie already exists, should throw ResourceAlreadyExistsException")
   void createMovie_WhenAlreadyExists_ShouldThrowException() {
@@ -124,6 +141,10 @@ public class MovieServiceTest {
     verify(movieMapper, never()).toDto(any(Movie.class));
   }
 
+  /**
+   * Verifies that a movie can be retrieved by its identifier and is mapped
+   * to {@link MovieResponseDTO}.
+   */
   @Test
   @DisplayName("If a movie exists with the given id, should return MovieResponseDTO")
   void getMovieById_WhenExists_ShouldReturnMovieResponseDTO() {
@@ -140,6 +161,10 @@ public class MovieServiceTest {
     verify(movieMapper).toDto(movie);
   }
 
+  /**
+   * Verifies that requesting a non-existent movie id results in a
+   * {@link ResourceNotFoundException}.
+   */
   @Test
   @DisplayName("If a movie does not exist with the given id, should throw ResourceNotFoundException")
   void getMovieById_WhenNotExists_ShouldThrowException() {
@@ -153,6 +178,10 @@ public class MovieServiceTest {
     verify(movieMapper, never()).toDto(any(Movie.class));
   }
 
+  /**
+   * Verifies that updating an existing movie applies the changes and returns
+   * an updated {@link MovieResponseDTO}.
+   */
   @Test
   @DisplayName("If a movie exists, should update and return MovieResponseDTO")
   void updateMovie_WhenExists_ShouldReturnUpdatedMovie() {
@@ -196,6 +225,10 @@ public class MovieServiceTest {
     verify(movieMapper).toDto(updatedMovie);
   }
 
+  /**
+   * Verifies that attempting to update a non-existent movie results in a
+   * {@link ResourceNotFoundException} and that no save operation occurs.
+   */
   @Test
   @DisplayName("If a movie does not exist, update should throw ResourceNotFoundException")
   void updateMovie_WhenNotExists_ShouldThrowException() {
@@ -209,6 +242,34 @@ public class MovieServiceTest {
     verify(movieRepository, never()).save(any(Movie.class));
   }
 
+  /**
+   * Verifies that attempting to update a movie where the title or release date
+   * is changed to values that already exist will result in a
+   * {@link ResourceAlreadyExistsException} and that the update will not be
+   * persisted.
+   */
+  @Test
+  @DisplayName("If update changes title/releaseDate to an existing movie, should throw ResourceAlreadyExistsException")
+  void updateMovie_WhenConflictOnTitleAndDate_ShouldThrowException() {
+    MovieRequestDTO updateRequest = new MovieRequestDTO(
+        "Before Sunrise - Duplicate",
+        101,
+        "Romance",
+        LocalDate.of(1995, 1, 27),
+        "Some description");
+
+    when(movieRepository.findById(1L)).thenReturn(Optional.of(movie));
+    when(movieRepository.existsByTitleAndReleaseDate(updateRequest.title(), updateRequest.releaseDate()))
+        .thenReturn(true);
+
+    assertThatThrownBy(() -> movieService.updateMovie(1L, updateRequest))
+        .isInstanceOf(ResourceAlreadyExistsException.class)
+        .hasMessageContaining("A movie with title");
+
+    verify(movieRepository).findById(1L);
+    verify(movieRepository, never()).save(any(Movie.class));
+  }
+
   static Stream<Arguments> searchArguments() {
     return Stream.of(
         Arguments.of(null, null),
@@ -217,6 +278,14 @@ public class MovieServiceTest {
         Arguments.of("Matrix", "Sci-Fi"));
   }
 
+  /**
+   * Parameterized test that verifies search behavior for different combinations
+   * of title and genre input values. The service should return a page of
+   * {@link MovieResponseDTO} objects matching the search criteria.
+   *
+   * @param title optional title filter used for the search
+   * @param genre optional genre filter used for the search
+   */
   @ParameterizedTest
   @MethodSource("searchArguments")
   @DisplayName("Search should return Page of MovieResponseDTO")
@@ -231,11 +300,29 @@ public class MovieServiceTest {
 
     assertThat(result).isNotNull();
     assertThat(result.getContent()).hasSize(2);
-    assertThat(result.getContent().get(0).title()).isEqualTo("Before Sunrise");
+    assertThat(result.getContent()).extracting(MovieResponseDTO::title).contains("Before Sunrise");
     assertThat(result.getNumber()).isEqualTo(0);
     assertThat(result.getSize()).isEqualTo(2);
 
     verify(movieRepository).search(title, genre, pageable);
     verify(movieMapper, times(2)).toDto(any(Movie.class));
+  }
+
+  /**
+   * Verifies that when the repository returns no results, the service returns
+   * an empty page and does not map any entities to DTOs.
+   */
+  @Test
+  @DisplayName("Search should return empty page when no results are found")
+  void search_WhenNoResults_ShouldReturnEmptyPage() {
+    when(movieRepository.search(null, null, pageable)).thenReturn(Page.empty(pageable));
+
+    Page<MovieResponseDTO> result = movieService.search(null, null, pageable);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getContent()).isEmpty();
+
+    verify(movieRepository).search(null, null, pageable);
+    verify(movieMapper, never()).toDto(any(Movie.class));
   }
 }

@@ -1,5 +1,7 @@
 package dev.genesshoan.cinema_rest_api.service;
 
+import java.util.Objects;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,7 +52,6 @@ public class MovieService {
    * @throws ResourceAlreadyExistsException if a movie with the same title
    *                                        and release date already exists in the
    *                                        database
-   * @throws IllegalArgumentException       if movieRequestDTO is null
    */
   public MovieResponseDTO createMovie(MovieRequestDTO movieRequestDTO) {
     Movie movie = movieMapper.toEntity(movieRequestDTO);
@@ -72,7 +73,6 @@ public class MovieService {
    * @param id the movie ID to search for
    * @return the movie with the specified ID
    * @throws ResourceNotFoundException if no movie with the given ID exists
-   * @throws IllegalArgumentException  if id is null
    */
   public MovieResponseDTO getMovieById(Long id) {
     Movie movie = movieRepository.findById(id)
@@ -91,12 +91,25 @@ public class MovieService {
    * @param movieRequestDTO the new movie data
    * @return the updated movie
    * @throws ResourceNotFoundException if no movie with the given ID exists
-   * @throws IllegalArgumentException  if id or movieRequestDTO is null
    */
   public MovieResponseDTO updateMovie(Long id, MovieRequestDTO movieRequestDTO) {
     Movie existing = movieRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Movie with id " + id + " does not exist"));
 
+    boolean titleIsChanging = !Objects.equals(existing.getTitle(), movieRequestDTO.title());
+    boolean releaseDateIsChanging = !Objects.equals(existing.getReleaseDate(), movieRequestDTO.releaseDate());
+
+    if (titleIsChanging || releaseDateIsChanging) {
+      if (movieRepository.existsByTitleAndReleaseDate(
+          movieRequestDTO.title(),
+          movieRequestDTO.releaseDate())) {
+        throw new ResourceAlreadyExistsException(
+            String.format(
+                "A movie with title '%s' and release date '%s' already exists.  The changes cannot be applied.",
+                movieRequestDTO.title(),
+                movieRequestDTO.releaseDate()));
+      }
+    }
     existing.setTitle(movieRequestDTO.title());
     existing.setDescription(movieRequestDTO.description());
     existing.setDurationMinutes(movieRequestDTO.durationMinutes());
@@ -118,7 +131,6 @@ public class MovieService {
    * @param genre    optional genre search term, can be null
    * @param pageable pagination and sorting parameters, must not be null
    * @return a page of movies matching the search criteria
-   * @throws IllegalArgumentException if pageable is null
    */
   public Page<MovieResponseDTO> search(String title, String genre, Pageable pageable) {
     return movieRepository.search(title, genre, pageable)

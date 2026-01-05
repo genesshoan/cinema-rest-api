@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,14 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import dev.genesshoan.cinema_rest_api.dto.MovieRequestDTO;
 import dev.genesshoan.cinema_rest_api.dto.MovieResponseDTO;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.service.MovieService;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -72,12 +69,9 @@ public class MovieController {
    *
    * @param movieRequestDTO the movie request date to create, must not be null.
    * @return the created movie with the generated id.
-   * @throws ResourceAlreadyExistsException  if a movie with the same title and
-   *                                         release date already
-   *                                         exists.
-   * @throws MethodArgumentNotValidException if 'movieRequestDTO' is invalid
-   *                                         (automatic validation of request
-   *                                         body, {@see MovieRequestDTO})
+   * @throws ResourceAlreadyExistsException if a movie with the same title and
+   *                                        release date already
+   *                                        exists.
    *
    * @see MovieService#createMovie(MovieRequestDTO)
    */
@@ -92,11 +86,8 @@ public class MovieController {
    *
    * @param id the movie ID, must be greater than 0.
    * @return the movie with the specified id.
-   * @throws ResourceNotFoundException           if no movie with the given ID
-   *                                             exits
-   * @throws ConstraintViolationException        if 'id' is less than 1
-   * @throws MethodArgumentTypeMismatchException if the path variable 'id' cannot
-   *                                             be converted to Long
+   * @throws ResourceNotFoundException if no movie with the given ID
+   *                                   exits
    *
    * @see MovieService#getMovieById(Long)
    */
@@ -128,8 +119,6 @@ public class MovieController {
    * @param genre    genre optional search term (case-insensitive partial match)
    * @param pageable pagination and sorting parameters
    * @return a page of movies matching the search criteria
-   * @throws ConstraintViolationException if 'title' or 'genre' exceed their size
-   *                                      limits (automatic validation)
    *
    * @see MovieService#search(String, String, Pageable)
    */
@@ -152,16 +141,10 @@ public class MovieController {
    * @param movieRequestDTO the new movie data. All fields are validated,
    *                        {@see MovieRequestDTO}
    * @return the updated movie.
-   * @throws ResourceNotFoundException           if no movie with the given ID
-   *                                             exists (thrown by the service)
-   * @throws ConstraintViolationException        if 'id' is less than 1 (automatic
-   *                                             validation of the path variable)
-   * @throws MethodArgumentNotValidException     if 'movieRequestDTO' is invalid
-   *                                             (automatic validation of the
-   *                                             request body,
-   *                                             {@see MovieRequestDTO})
-   * @throws MethodArgumentTypeMismatchException if the path variable 'id' cannot
-   *                                             be converted to Long
+   * @throws ResourceNotFoundException      if no movie with the given ID
+   *                                        exists (thrown by the service)
+   * @throws ResourceAlreadyExistsException if the release date and/or title
+   *                                        conbination already exists
    *
    * @see MovieService#updateMovie(Long, MovieRequestDTO)
    */
