@@ -1,14 +1,22 @@
 package dev.genesshoan.cinema_rest_api.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * JPA entity representing a movie in the cinema system.
@@ -40,6 +48,10 @@ import jakarta.persistence.Table;
 @Table(name = "movies", indexes = {
     @Index(name = "idx_movie_title", columnList = "title, release_date", unique = true)
 })
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Movie {
   /**
    * The unique identifier for this movie.
@@ -95,65 +107,43 @@ public class Movie {
   @Column(columnDefinition = "TEXT")
   private String description;
 
-  public Movie() {
+  /**
+   * Showtimes associated with this movie.
+   *
+   * <p>
+   * This represents a one-to-many relationship where a movie may have zero or
+   * more
+   * showtimes, while each showtime must be associated with exactly one movie.
+   * </p>
+   *
+   * <p>
+   * This side of the relationship is inverse (non-owning); the foreign key is
+   * managed by the {@link Showtime#movie} field.
+   * </p>
+   *
+   * <p>
+   * Cascade operations are enabled so that persisting or removing a movie
+   * will also affect its showtimes. Orphan removal ensures that showtimes
+   * removed from this collection are deleted from the database.
+   * </p>
+   *
+   * <p>
+   * This collection is initialized to avoid {@code NullPointerException} and
+   * should be modified through helper methods to keep both sides of the
+   * association in sync.
+   * </p>
+   */
+  @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Showtime> showtimes = new ArrayList<>();
+
+  public void addShowtime(Showtime showtime) {
+    showtimes.add(showtime);
+    showtime.setMovie(this);
   }
 
-  public Movie(Long id, String title, Integer durationMinutes, String genre,
-      LocalDate releaseDate, String description) {
-    this.id = id;
-    this.title = title;
-    this.durationMinutes = durationMinutes;
-    this.genre = genre;
-    this.releaseDate = releaseDate;
-    this.description = description;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public Integer getDurationMinutes() {
-    return durationMinutes;
-  }
-
-  public void setDurationMinutes(Integer durationMinutes) {
-    this.durationMinutes = durationMinutes;
-  }
-
-  public String getGenre() {
-    return genre;
-  }
-
-  public void setGenre(String genre) {
-    this.genre = genre;
-  }
-
-  public LocalDate getReleaseDate() {
-    return releaseDate;
-  }
-
-  public void setReleaseDate(LocalDate realeseDate) {
-    this.releaseDate = realeseDate;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
+  public void removeShowtime(Showtime showtime) {
+    showtimes.remove(showtime);
+    showtime.setMovie(null);
   }
 
   @Override
@@ -161,8 +151,6 @@ public class Movie {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + ((title == null) ? 0 : title.hashCode());
-    result = prime * result + ((releaseDate == null) ? 0 : releaseDate.hashCode());
     return result;
   }
 
@@ -179,16 +167,6 @@ public class Movie {
       if (other.id != null)
         return false;
     } else if (!id.equals(other.id))
-      return false;
-    if (title == null) {
-      if (other.title != null)
-        return false;
-    } else if (!title.equals(other.title))
-      return false;
-    if (releaseDate == null) {
-      if (other.releaseDate != null)
-        return false;
-    } else if (!releaseDate.equals(other.releaseDate))
       return false;
     return true;
   }
