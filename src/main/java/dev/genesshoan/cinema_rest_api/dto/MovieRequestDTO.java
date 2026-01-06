@@ -40,7 +40,7 @@ public record MovieRequestDTO(
 
     @NotNull(message = "{movie.durationMinutes.required}") @Min(value = 1, message = "{movie.durationMinutes.min}") Integer durationMinutes,
 
-    @NotBlank(message = "{movie.genre.required}") @Size(max = 30, message = "movie.genre.size") String genre,
+    @NotBlank(message = "{movie.genre.required}") @Size(max = 30, message = "{movie.genre.size}") String genre,
 
     @NotNull(message = "{movie.releaseDate.required}") @PastOrPresent(message = "{movie.releaseDate.past}") LocalDate releaseDate,
 

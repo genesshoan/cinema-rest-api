@@ -1,18 +1,24 @@
 package dev.genesshoan.cinema_rest_api.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import dev.genesshoan.cinema_rest_api.dto.MovieRequestDTO;
 import dev.genesshoan.cinema_rest_api.dto.MovieResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Movie;
+import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.mapper.MovieMapper;
 import dev.genesshoan.cinema_rest_api.repository.MovieRepository;
+import lombok.AllArgsConstructor;
 
 /**
  * Service layer for movie business logic.
@@ -31,14 +37,11 @@ import dev.genesshoan.cinema_rest_api.repository.MovieRepository;
  * @since 1.0.0
  */
 @Service
+@Transactional(readOnly = true)
+@AllArgsConstructor
 public class MovieService {
   private final MovieRepository movieRepository;
   private final MovieMapper movieMapper;
-
-  public MovieService(MovieRepository movieRepository, MovieMapper movieMapper) {
-    this.movieRepository = movieRepository;
-    this.movieMapper = movieMapper;
-  }
 
   /**
    * Creates a new movie in the database.
@@ -53,6 +56,7 @@ public class MovieService {
    *                                        and release date already exists in the
    *                                        database
    */
+  @Transactional
   public MovieResponseDTO createMovie(MovieRequestDTO movieRequestDTO) {
     Movie movie = movieMapper.toEntity(movieRequestDTO);
 
@@ -64,8 +68,25 @@ public class MovieService {
         movieRepository.save(movie));
   }
 
-  // TODO: Implement public List<Movies> getMoviesInTheaters() when Showtime is
-  // ready :)
+  /**
+   * Retrieves all movies with shows that match the given status and have a show
+   * date-time greater than or equal to the specified date.
+   *
+   * @param from     the base date-time to filter shows
+   * @param status   the showtime status to filter shows
+   * @param pageable the pagination and sorting parameters
+   * @return a page of movies matching the given criteria
+   */
+  public Page<MovieResponseDTO> getMoviesWithShowtimes(LocalDateTime from, ShowtimeStatus status, Pageable pageable) {
+    Page<Long> movieIdsPage = movieRepository.findMovieIdsWithShowtimes(from, status, pageable);
+    List<Long> ids = movieIdsPage.getContent();
+
+    List<MovieResponseDTO> dtos = movieRepository.findMovieWithShowtimes(ids).stream()
+        .map(movieMapper::toDto)
+        .toList();
+
+    return new PageImpl<>(dtos, pageable, movieIdsPage.getTotalElements());
+  }
 
   /**
    * Retrieves a movie by its unique identifier.
@@ -92,6 +113,7 @@ public class MovieService {
    * @return the updated movie
    * @throws ResourceNotFoundException if no movie with the given ID exists
    */
+  @Transactional
   public MovieResponseDTO updateMovie(Long id, MovieRequestDTO movieRequestDTO) {
     Movie existing = movieRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Movie with id " + id + " does not exist"));
@@ -105,7 +127,7 @@ public class MovieService {
           movieRequestDTO.releaseDate())) {
         throw new ResourceAlreadyExistsException(
             String.format(
-                "A movie with title '%s' and release date '%s' already exists.  The changes cannot be applied.",
+                "A movie with title '%s' and release date '%s' already exists.  The changes cannot be applied",
                 movieRequestDTO.title(),
                 movieRequestDTO.releaseDate()));
       }
@@ -119,7 +141,20 @@ public class MovieService {
     return movieMapper.toDto(movieRepository.save(existing));
   }
 
-  // TODO: Implement public Movie deleteMovieById(Long id) when showtime is ready
+  /**
+   * Deletes a movie by its unique identifier.
+   *
+   * @param id the ID of the movie to update.
+   * @throws ResourceNotFoundException if no movie with the given ID exist.
+   */
+  @Transactional
+  public void deleteMovieById(Long id) {
+    if (!movieRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Movie with id '" + id + "' does not exist");
+    }
+
+    movieRepository.deleteById(id);
+  }
 
   /**
    * Searches for movies by title and/or genre using partial matching.
