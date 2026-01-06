@@ -35,10 +35,10 @@ import jakarta.validation.constraints.Min;
  * <p>
  * Supported operations:
  * <ul>
- *   <li>Create a new room (POST /rooms)</li>
- *   <li>Retrieve a paginated list of rooms (GET /rooms)</li>
- *   <li>Retrieve a single room by id (GET /rooms/{id})</li>
- *   <li>Update an existing room (PUT /rooms/{id})</li>
+ * <li>Create a new room (POST /rooms)</li>
+ * <li>Retrieve a paginated list of rooms (GET /rooms)</li>
+ * <li>Retrieve a single room by id (GET /rooms/{id})</li>
+ * <li>Update an existing room (PUT /rooms/{id})</li>
  * </ul>
  * </p>
  *
@@ -99,13 +99,13 @@ public class RoomController {
   /**
    * Update an existing room.
    *
-   * @param id the id of the room to update
+   * @param id             the id of the room to update
    * @param roomRequestDTO the updated room payload
    * @return the updated room as a response DTO
    */
   @PutMapping("/{id}")
   public RoomResponseDTO updateRoom(
-      @PathVariable Long id,
+      @PathVariable @Min(value = 1, message = "{id.min}") Long id,
       @Valid @RequestBody RoomRequestDTO roomRequestDTO) {
     return roomService.updateRoom(id, roomRequestDTO);
   }
