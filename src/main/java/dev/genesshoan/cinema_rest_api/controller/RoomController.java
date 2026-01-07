@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import dev.genesshoan.cinema_rest_api.dto.RoomResponseDTO;
 import dev.genesshoan.cinema_rest_api.service.RoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 
 /**
  * REST controller for managing cinema rooms.
@@ -55,12 +57,9 @@ import jakarta.validation.constraints.Min;
 @RestController
 @RequestMapping("/rooms")
 @Validated
+@RequiredArgsConstructor
 public class RoomController {
   private final RoomService roomService;
-
-  public RoomController(RoomService roomService) {
-    this.roomService = roomService;
-  }
 
   /**
    * Create a new room.
@@ -92,7 +91,7 @@ public class RoomController {
    * @return the room response DTO
    */
   @GetMapping("/{id}")
-  public RoomResponseDTO getRoomById(@PathVariable @Min(value = 1, message = "{id.min}") Long id) {
+  public RoomResponseDTO getRoomById(@PathVariable @Min(value = 1, message = "{id.min}") long id) {
     return roomService.getRoomById(id);
   }
 
@@ -105,8 +104,22 @@ public class RoomController {
    */
   @PutMapping("/{id}")
   public RoomResponseDTO updateRoom(
-      @PathVariable @Min(value = 1, message = "{id.min}") Long id,
+      @PathVariable @Min(value = 1, message = "{id.min}") long id,
       @Valid @RequestBody RoomRequestDTO roomRequestDTO) {
     return roomService.updateRoom(id, roomRequestDTO);
+  }
+
+  /**
+   * Deletes a room by its unique identifier.
+   *
+   * @param id the ID of the room to delete; must be greater than 0
+   * @throws ResourceNotFoundException if no room with the specified ID exists
+   *
+   * @see RoomService#deleteRoomById(long)
+   */
+  @DeleteMapping("{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteRoomById(@PathVariable @Min(value = 1, message = "{id.min}") long id) {
+    roomService.deleteRoomById(id);
   }
 }

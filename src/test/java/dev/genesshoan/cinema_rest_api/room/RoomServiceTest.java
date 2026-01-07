@@ -3,6 +3,7 @@ package dev.genesshoan.cinema_rest_api.room;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -275,5 +276,37 @@ public class RoomServiceTest {
 
     assertThatThrownBy(() -> roomService.updateRoom(room.getId(), roomRequestDTO))
         .isInstanceOf(ResourceNotFoundException.class);
+  }
+
+  /**
+   * Verifies that deleting an existing room invokes repository delete and
+   * does not throw an exception.
+   */
+  @Test
+  @DisplayName("deleteRoomById should delete when room exists")
+  void deleteRoomById_WhenExists_ShouldDeleteRoom() {
+    when(roomRepository.existsById(room.getId())).thenReturn(true);
+
+    roomService.deleteRoomById(room.getId());
+
+    verify(roomRepository, times(1)).existsById(room.getId());
+    verify(roomRepository, times(1)).deleteById(room.getId());
+  }
+
+  /**
+   * Verifies that attempting to delete a non-existent room results in
+   * {@link ResourceNotFoundException} and no delete call is performed.
+   */
+  @Test
+  @DisplayName("deleteRoomById should throw ResourceNotFoundException when room does not exist")
+  void deleteRoomById_WhenNotExists_ShouldThrowException() {
+    when(roomRepository.existsById(2L)).thenReturn(false);
+
+    assertThatThrownBy(() -> roomService.deleteRoomById(2L))
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("Room with id '2' does not exist");
+
+    verify(roomRepository, times(1)).existsById(2L);
+    verify(roomRepository, never()).deleteById(anyLong());
   }
 }

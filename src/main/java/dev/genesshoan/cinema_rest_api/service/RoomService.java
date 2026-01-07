@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import dev.genesshoan.cinema_rest_api.dto.RoomRequestDTO;
 import dev.genesshoan.cinema_rest_api.dto.RoomResponseDTO;
@@ -13,6 +14,7 @@ import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.mapper.RoomMapper;
 import dev.genesshoan.cinema_rest_api.repository.RoomRepository;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Service layer for room business logic.
@@ -31,14 +33,11 @@ import dev.genesshoan.cinema_rest_api.repository.RoomRepository;
  * @since 1.0.0
  */
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class RoomService {
   private final RoomRepository roomRepository;
   private final RoomMapper roomMapper;
-
-  public RoomService(RoomRepository roomRepository, RoomMapper roomMapper) {
-    this.roomRepository = roomRepository;
-    this.roomMapper = roomMapper;
-  }
 
   /**
    * Creates a new room in the database.
@@ -51,6 +50,7 @@ public class RoomService {
    * @throws ResourceAlreadyExistsException if a movie with the given 'id' already
    *                                        exists
    */
+  @Transactional
   public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) {
     Room room = roomMapper.toEntity(roomRequestDTO);
 
@@ -80,7 +80,7 @@ public class RoomService {
    * @throws ResourceNotFoundException if no room with the given 'id' does not
    *                                   exists
    */
-  public RoomResponseDTO getRoomById(Long id) {
+  public RoomResponseDTO getRoomById(long id) {
     Room room = roomRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " was not found"));
 
@@ -100,7 +100,8 @@ public class RoomService {
    * @throws ResourceAlreadyExistsException if already exists a room with the
    *                                        given new name
    */
-  public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO) {
+  @Transactional
+  public RoomResponseDTO updateRoom(long id, RoomRequestDTO roomRequestDTO) {
     Room existing = roomRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " was not found"));
 
@@ -119,5 +120,18 @@ public class RoomService {
         roomRepository.save(existing));
   }
 
-  // TODO: implemente public deleteById(Long id)
+  /**
+   * Deletes a room by its unique identifier.
+   *
+   * @param id the ID of the room to delete.
+   * @throws ResourceNotFoundException if no room with the given ID exists.
+   */
+  @Transactional
+  public void deleteRoomById(long id) {
+    if (!roomRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Room with id '" + id + "' does not exist");
+    }
+
+    roomRepository.deleteById(id);
+  }
 }
