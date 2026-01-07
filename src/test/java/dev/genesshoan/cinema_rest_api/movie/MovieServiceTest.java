@@ -10,9 +10,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +34,7 @@ import org.springframework.data.domain.Pageable;
 import dev.genesshoan.cinema_rest_api.dto.MovieRequestDTO;
 import dev.genesshoan.cinema_rest_api.dto.MovieResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Movie;
+import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.mapper.MovieMapper;
@@ -42,8 +45,8 @@ import dev.genesshoan.cinema_rest_api.service.MovieService;
  * Unit tests for {@link MovieService}.
  *
  * <p>These tests verify the behavior of the service layer responsible for
- * creating, retrieving, updating, and searching movies. Each test is focused
- * on a single behavior and uses Mockito to isolate the service from its
+ * creating, retrieving, updating, deleting, and searching movies. Each test is
+ * focused on a single behavior and uses Mockito to isolate the service from its
  * dependencies.</p>
  */
 @ExtendWith(MockitoExtension.class)
@@ -323,6 +326,93 @@ public class MovieServiceTest {
     assertThat(result.getContent()).isEmpty();
 
     verify(movieRepository).search(null, null, pageable);
+    verify(movieMapper, never()).toDto(any(Movie.class));
+  }
+
+  /**
+   * Verifies that deleting a movie which exists results in the repository
+   * delete operation being invoked.
+   */
+  @Test
+  @DisplayName("If a movie exists, deleteMovieById should call repository delete")
+  void deleteMovieById_WhenExists_ShouldDelete() {
+    when(movieRepository.existsById(1L)).thenReturn(true);
+
+    movieService.deleteMovieById(1L);
+
+    verify(movieRepository).existsById(1L);
+    verify(movieRepository).deleteById(1L);
+  }
+
+  /**
+   * Verifies that attempting to delete a non-existent movie results in a
+   * {@link ResourceNotFoundException} and no delete is attempted.
+   */
+  @Test
+  @DisplayName("If a movie does not exist, deleteMovieById should throw ResourceNotFoundException")
+  void deleteMovieById_WhenNotExists_ShouldThrowException() {
+    when(movieRepository.existsById(1L)).thenReturn(false);
+
+    assertThatThrownBy(() -> movieService.deleteMovieById(1L))
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("Movie with id '1' does not exist");
+
+    verify(movieRepository).existsById(1L);
+    verify(movieRepository, never()).deleteById(1L);
+  }
+
+  /**
+   * Verifies that getMoviesWithShowtimes returns a page of movie DTOs when the
+   * repository returns matching ids and entities.
+   */
+  @Test
+  @DisplayName("getMoviesWithShowtimes should return Page of MovieResponseDTO when results exist")
+  void getMoviesWithShowtimes_WhenResultsExist_ShouldReturnPage() {
+    LocalDateTime from = LocalDateTime.now();
+    ShowtimeStatus status = ShowtimeStatus.SCHEDULED;
+
+    List<Long> ids = List.of(1L);
+    Page<Long> idPage = new PageImpl<>(ids, pageable, ids.size());
+
+    List<Movie> movies = List.of(movie);
+
+    when(movieRepository.findMovieIdsWithShowtimes(from, status, pageable)).thenReturn(idPage);
+    when(movieRepository.findMovieWithShowtimes(ids)).thenReturn(movies);
+    when(movieMapper.toDto(movie)).thenReturn(responseDTO);
+
+    Page<MovieResponseDTO> result = movieService.getMoviesWithShowtimes(from, status, pageable);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getContent()).hasSize(1);
+    assertThat(result.getContent()).extracting(MovieResponseDTO::id).contains(1L);
+
+    verify(movieRepository).findMovieIdsWithShowtimes(from, status, pageable);
+    verify(movieRepository).findMovieWithShowtimes(ids);
+    verify(movieMapper).toDto(movie);
+  }
+
+  /**
+   * Verifies that getMoviesWithShowtimes returns an empty page when repository
+   * returns no ids.
+   */
+  @Test
+  @DisplayName("getMoviesWithShowtimes should return empty page when no results")
+  void getMoviesWithShowtimes_WhenNoResults_ShouldReturnEmptyPage() {
+    LocalDateTime from = LocalDateTime.now();
+    ShowtimeStatus status = ShowtimeStatus.SCHEDULED;
+
+    Page<Long> emptyIdPage = Page.empty(pageable);
+
+    when(movieRepository.findMovieIdsWithShowtimes(from, status, pageable)).thenReturn(emptyIdPage);
+    when(movieRepository.findMovieWithShowtimes(Collections.emptyList())).thenReturn(Collections.emptyList());
+
+    Page<MovieResponseDTO> result = movieService.getMoviesWithShowtimes(from, status, pageable);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getContent()).isEmpty();
+
+    verify(movieRepository).findMovieIdsWithShowtimes(from, status, pageable);
+    verify(movieRepository).findMovieWithShowtimes(Collections.emptyList());
     verify(movieMapper, never()).toDto(any(Movie.class));
   }
 }

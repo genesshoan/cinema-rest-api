@@ -81,8 +81,7 @@ public class MovieService {
     Page<Long> movieIdsPage = movieRepository.findMovieIdsWithShowtimes(from, status, pageable);
     List<Long> ids = movieIdsPage.getContent();
 
-    List<MovieResponseDTO> dtos = movieRepository.findMovieWithShowtimes(ids).stream()
-        .map(movieMapper::toDto)
+    List<MovieResponseDTO> dtos = movieRepository.findMovieWithShowtimes(ids).stream().map(movieMapper::toDto)
         .toList();
 
     return new PageImpl<>(dtos, pageable, movieIdsPage.getTotalElements());
@@ -95,7 +94,7 @@ public class MovieService {
    * @return the movie with the specified ID
    * @throws ResourceNotFoundException if no movie with the given ID exists
    */
-  public MovieResponseDTO getMovieById(Long id) {
+  public MovieResponseDTO getMovieById(long id) {
     Movie movie = movieRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Movie with id " + id + " was not found"));
 
@@ -114,7 +113,7 @@ public class MovieService {
    * @throws ResourceNotFoundException if no movie with the given ID exists
    */
   @Transactional
-  public MovieResponseDTO updateMovie(Long id, MovieRequestDTO movieRequestDTO) {
+  public MovieResponseDTO updateMovie(long id, MovieRequestDTO movieRequestDTO) {
     Movie existing = movieRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Movie with id " + id + " does not exist"));
 
@@ -148,7 +147,7 @@ public class MovieService {
    * @throws ResourceNotFoundException if no movie with the given ID exist.
    */
   @Transactional
-  public void deleteMovieById(Long id) {
+  public void deleteMovieById(long id) {
     if (!movieRepository.existsById(id)) {
       throw new ResourceNotFoundException("Movie with id '" + id + "' does not exist");
     }
