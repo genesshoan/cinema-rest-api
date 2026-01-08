@@ -3,7 +3,6 @@ package dev.genesshoan.cinema_rest_api.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -106,7 +105,7 @@ public class Room {
    * association in sync.
    * </p>
    */
-  @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "room")
   private List<Showtime> showtimes = new ArrayList<>();
 
   public void addShowtime(Showtime showtime) {

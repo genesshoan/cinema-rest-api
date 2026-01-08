@@ -87,6 +87,11 @@ public class RoomService {
     return roomMapper.toDto(room);
   }
 
+  public Room getEntityById(long id) {
+    return roomRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " was not found"));
+  }
+
   /**
    * Updates an existing room.
    *
