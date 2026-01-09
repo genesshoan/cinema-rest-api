@@ -41,7 +41,7 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "showtimes", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_showtimes_room_date_time", columnNames = { "room_id", "date_time" })
+    @UniqueConstraint(name = "uk_showtimes_room_date_time", columnNames = { "room_id", "start_date_time" })
 })
 @Getter
 @Setter

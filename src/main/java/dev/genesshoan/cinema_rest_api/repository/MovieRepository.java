@@ -89,7 +89,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
         SELECT DISTINCT m.id
         FROM Movie m
         JOIN m.showtimes s
-        WHERE s.dateTime >= :from
+        WHERE s.startTime >= :from
           AND s.status = :status
       """)
   public Page<Long> findMovieIdsWithShowtimes(
