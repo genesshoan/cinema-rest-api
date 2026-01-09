@@ -11,13 +11,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
+import dev.genesshoan.cinema_rest_api.exception.InvalidRequestException;
+import dev.genesshoan.cinema_rest_api.exception.OverlapingShowtimesException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Exception handlers related to domain/resource operations.
  *
  * These handlers translate domain-specific exceptions (resource not found,
- * resource already exists) into appropriate HTTP ProblemDetail responses.
+ * resource already exists, invalid requests, overlapping showtimes) into
+ * appropriate HTTP ProblemDetail responses.
  */
 @ControllerAdvice
 @Order(4)
@@ -74,6 +77,58 @@ public class DomainExceptionHandler {
         request);
 
     return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
+  }
+
+  /**
+   * Handle invalid requests that fail business validation or have malformed
+   * input that cannot be processed.
+   *
+   * This maps to HTTP 400 (Bad Request) because the client provided an
+   * invalid payload or violated a precondition.
+   *
+   * Examples:
+   * - Missing required fields that are not handled by validation annotations.
+   * - Business rules detected at service layer (e.g. invalid date ranges).
+   */
+  @ExceptionHandler(InvalidRequestException.class)
+  public ResponseEntity<ProblemDetail> handleInvalidRequest(
+      InvalidRequestException ex,
+      HttpServletRequest request) {
+    log.info("Invalid request: {} {} -> {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+    ProblemDetail problemDetail = ProblemDetailUtils.errorResponse(
+        HttpStatus.BAD_REQUEST,
+        "Invalid request",
+        ex.getMessage(),
+        null,
+        request);
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
+  }
+
+  /**
+   * Handle attempts to create or schedule showtimes that overlap existing
+   * showtimes in the same room.
+   *
+   * This is a domain-specific conflict: the request is syntactically valid but
+   * violates business constraints. Returning HTTP 422 (Unprocessable Entity)
+   * signals that the server understands the request but cannot process the
+   * contained instructions because of domain rules.
+   */
+  @ExceptionHandler(OverlapingShowtimesException.class)
+  public ResponseEntity<ProblemDetail> handleOverlappingShowtimes(
+      OverlapingShowtimesException ex,
+      HttpServletRequest request) {
+    log.warn("Overlapping showtimes: {} {} -> {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+    ProblemDetail problemDetail = ProblemDetailUtils.errorResponse(
+        HttpStatus.BAD_REQUEST,
+        "Overlapping showtimes",
+        ex.getMessage(),
+        null,
+        request);
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
   }
 
 }

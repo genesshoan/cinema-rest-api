@@ -58,12 +58,21 @@ public class Showtime {
   private Long id;
 
   /**
-   * The showtime date and time.
+   * The showtime start date and time.
+   *
+   * Must be a future or present date.
+   * Must be before end date time.
+   */
+  @Column(name = "start_date_time", nullable = false)
+  private LocalDateTime startTime;
+
+  /**
+   * The showtime end date and time.
    *
    * Must be a future or present date.
    */
-  @Column(name = "date_time", nullable = false)
-  private LocalDateTime dateTime;
+  @Column(name = "end_date_time", nullable = false)
+  private LocalDateTime endTime;
 
   /**
    * The showtime ticket's base price.
