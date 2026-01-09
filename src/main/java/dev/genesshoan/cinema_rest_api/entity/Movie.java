@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -133,7 +132,7 @@ public class Movie {
    * association in sync.
    * </p>
    */
-  @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "movie")
   private List<Showtime> showtimes = new ArrayList<>();
 
   public void addShowtime(Showtime showtime) {

@@ -101,6 +101,11 @@ public class MovieService {
     return movieMapper.toDto(movie);
   }
 
+  public Movie getEntityById(long id) {
+    return movieRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Movie with id " + id + " was not found"));
+  }
+
   /**
    * Updates an existing movie with new data.
    * 
