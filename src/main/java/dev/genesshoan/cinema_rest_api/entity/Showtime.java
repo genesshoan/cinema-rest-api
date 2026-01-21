@@ -2,6 +2,8 @@ package dev.genesshoan.cinema_rest_api.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -25,6 +28,7 @@ import lombok.Setter;
  * 
  * A showtime contains basic information such as date time and base price.
  * Cannot exist more than one showtime in the same room and date-time.
+ * Each showtime contains multiple seats representing the available positions in the room.
  *
  * <p>
  * Database table: {@code showtimes}
@@ -32,11 +36,21 @@ import lombok.Setter;
  * <p>
  * Unique constraint:
  * <ul>
- * <li>Combination of room_id and date_time must be unique</li>
+ * <li>Combination of room_id and start_date_time must be unique</li>
  * </ul>
+ *
+ * <p>
+ * Relationships:
+ * <ul>
+ * <li>Many-to-One with {@link Movie}: Each showtime displays exactly one movie</li>
+ * <li>Many-to-One with {@link Room}: Each showtime occurs in exactly one room</li>
+ * <li>One-to-Many with {@link Seat}: Each showtime contains multiple seats corresponding to room capacity</li>
+ * </ul>
+ * </p>
  *
  * @see Room
  * @see Movie
+ * @see Seat
  * @since 1.0.0
  */
 @Entity
@@ -112,6 +126,63 @@ public class Showtime {
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "room_id", nullable = false)
   private Room room;
+
+  /**
+   * Collection of seats for this showtime.
+   *
+   * <p>
+   * This is the inverse side of the relationship. The foreign key
+   * {@code showtime_id} is stored in the {@code seats} table.
+   * Each showtime contains multiple seats corresponding to the room's capacity.
+   * When a showtime is created, all seats should be initialized with AVAILABLE status.
+   * </p>
+   *
+   * <p>
+   * The list is eagerly populated from the Seat entity and maintains the one-to-many
+   * relationship between a showtime and its available seats. Use {@link #addSeat(Seat)}
+   * and {@link #removeShowtime(Seat)} methods to maintain bidirectional relationship consistency.
+   * </p>
+   *
+   * @see Seat
+   */
+  @OneToMany(mappedBy = "showtime")
+  private List<Seat> seats = new ArrayList<>();
+
+  /**
+   * Adds a seat to this showtime while maintaining the bidirectional relationship.
+   *
+   * <p>
+   * This method ensures that both sides of the relationship are properly updated:
+   * the seat is added to this showtime's seat list, and the seat's showtime reference
+   * is set to this showtime.
+   * </p>
+   *
+   * @param seat the seat to add; must not be null
+   *
+   * @see #removeShowtime(Seat)
+   */
+  public void addSeat(Seat seat) {
+    seats.add(seat);
+    seat.setShowtime(this);
+  }
+
+  /**
+   * Removes a seat from this showtime while maintaining the bidirectional relationship.
+   *
+   * <p>
+   * This method ensures that both sides of the relationship are properly updated:
+   * the seat is removed from this showtime's seat list, and the seat's showtime reference
+   * is set to null.
+   * </p>
+   *
+   * @param seat the seat to remove; must not be null
+   *
+   * @see #addSeat(Seat)
+   */
+  public void removeShowtime(Seat seat) {
+    seats.remove(seat);
+    seat.setShowtime(null);
+  }
 
   @Override
   public boolean equals(Object o) {
