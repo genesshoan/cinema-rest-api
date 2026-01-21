@@ -2,6 +2,7 @@ package dev.genesshoan.cinema_rest_api.service;
 
 import java.util.Objects;
 
+import dev.genesshoan.cinema_rest_api.exception.ResourceInUseException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -126,17 +127,34 @@ public class RoomService {
   }
 
   /**
-   * Deletes a room by its unique identifier.
+   * Soft deletes a room by its unique identifier.
+   *
+   * <p>
+   * This method marks the room as inactive (soft delete) rather than
+   * physically removing it from the database. This preserves historical
+   * data and references from existing showtimes.
+   * </p>
+   *
+   * <p>
+   * A room cannot be deleted if it has active (scheduled) showtimes.
+   * This prevents inconsistent state where showtimes reference deleted rooms.
+   * </p>
    *
    * @param id the ID of the room to delete.
    * @throws ResourceNotFoundException if no room with the given ID exists.
+   * @throws ResourceInUseException if the room has active showtimes.
    */
   @Transactional
   public void deleteRoomById(long id) {
-    if (!roomRepository.existsById(id)) {
-      throw new ResourceNotFoundException("Room with id '" + id + "' does not exist");
+    Room room = roomRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Room with id '" + id + "' does not exist"));
+
+    if (roomRepository.hasActiveShowtimes(id)) {
+      throw new ResourceInUseException(
+          "Cannot delete room with id '" + id + "' because it has active (scheduled) showtimes");
     }
 
-    roomRepository.deleteById(id);
+    room.setActive(false);
+    roomRepository.save(room);
   }
 }

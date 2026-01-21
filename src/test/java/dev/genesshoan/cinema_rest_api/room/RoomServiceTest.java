@@ -279,18 +279,22 @@ public class RoomServiceTest {
   }
 
   /**
-   * Verifies that deleting an existing room invokes repository delete and
-   * does not throw an exception.
+   * Verifies that deleting an existing room with no active showtimes
+   * marks it as inactive.
    */
   @Test
-  @DisplayName("deleteRoomById should delete when room exists")
-  void deleteRoomById_WhenExists_ShouldDeleteRoom() {
-    when(roomRepository.existsById(room.getId())).thenReturn(true);
+  @DisplayName("deleteRoomById should soft delete when room exists and has no active showtimes")
+  void deleteRoomById_WhenExistsAndNoActiveShowtimes_ShouldSoftDelete() {
+    room.setActive(true);
+    when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
+    when(roomRepository.hasActiveShowtimes(room.getId())).thenReturn(false);
 
     roomService.deleteRoomById(room.getId());
 
-    verify(roomRepository, times(1)).existsById(room.getId());
-    verify(roomRepository, times(1)).deleteById(room.getId());
+    verify(roomRepository, times(1)).findById(room.getId());
+    verify(roomRepository, times(1)).hasActiveShowtimes(room.getId());
+    verify(roomRepository, times(1)).save(room);
+    assertThat(room.getActive()).isFalse();
   }
 
   /**
@@ -300,13 +304,35 @@ public class RoomServiceTest {
   @Test
   @DisplayName("deleteRoomById should throw ResourceNotFoundException when room does not exist")
   void deleteRoomById_WhenNotExists_ShouldThrowException() {
-    when(roomRepository.existsById(2L)).thenReturn(false);
+    when(roomRepository.findById(2L)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> roomService.deleteRoomById(2L))
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("Room with id '2' does not exist");
 
-    verify(roomRepository, times(1)).existsById(2L);
-    verify(roomRepository, never()).deleteById(anyLong());
+    verify(roomRepository, times(1)).findById(2L);
+    verify(roomRepository, never()).hasActiveShowtimes(anyLong());
+    verify(roomRepository, never()).save(any(Room.class));
+  }
+
+  /**
+   * Verifies that attempting to delete a room with active showtimes results
+   * in {@link ResourceInUseException} and the room is not deleted.
+   */
+  @Test
+  @DisplayName("deleteRoomById should throw ResourceInUseException when room has active showtimes")
+  void deleteRoomById_WhenHasActiveShowtimes_ShouldThrowException() {
+    room.setActive(true);
+    when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
+    when(roomRepository.hasActiveShowtimes(room.getId())).thenReturn(true);
+
+    assertThatThrownBy(() -> roomService.deleteRoomById(room.getId()))
+        .isInstanceOf(dev.genesshoan.cinema_rest_api.exception.ResourceInUseException.class)
+        .hasMessageContaining("Cannot delete room with id '" + room.getId() + "' because it has active (scheduled) showtimes");
+
+    verify(roomRepository, times(1)).findById(room.getId());
+    verify(roomRepository, times(1)).hasActiveShowtimes(room.getId());
+    verify(roomRepository, never()).save(any(Room.class));
+    assertThat(room.getActive()).isTrue();
   }
 }

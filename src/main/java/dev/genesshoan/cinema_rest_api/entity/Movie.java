@@ -107,6 +107,22 @@ public class Movie {
   private String description;
 
   /**
+   * Indicates whether this movie is active in the system.
+   *
+   * <p>
+   * Active movies (true) are visible and can be used for new showtimes.
+   * Inactive movies (false) are soft-deleted and hidden from normal operations
+   * but preserved for historical records and existing showtime references.
+   * </p>
+   *
+   * <p>
+   * Default value is true for new movies.
+   * </p>
+   */
+  @Column(nullable = false)
+  private Boolean active = true;
+
+  /**
    * Showtimes associated with this movie.
    *
    * <p>

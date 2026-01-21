@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import dev.genesshoan.cinema_rest_api.exception.ResourceInUseException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -146,18 +147,35 @@ public class MovieService {
   }
 
   /**
-   * Deletes a movie by its unique identifier.
+   * Soft deletes a movie by its unique identifier.
    *
-   * @param id the ID of the movie to update.
-   * @throws ResourceNotFoundException if no movie with the given ID exist.
+   * <p>
+   * This method marks the movie as inactive (soft delete) rather than
+   * physically removing it from the database. This preserves historical
+   * data and references from existing showtimes.
+   * </p>
+   *
+   * <p>
+   * A movie cannot be deleted if it has active (scheduled) showtimes.
+   * This prevents inconsistent state where showtimes reference deleted movies.
+   * </p>
+   *
+   * @param id the ID of the movie to delete.
+   * @throws ResourceNotFoundException if no movie with the given ID exists.
+   * @throws ResourceInUseException if the movie has active showtimes.
    */
   @Transactional
   public void deleteMovieById(long id) {
-    if (!movieRepository.existsById(id)) {
-      throw new ResourceNotFoundException("Movie with id '" + id + "' does not exist");
+    Movie movie = movieRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Movie with id '" + id + "' does not exist"));
+
+    if (movieRepository.hasActiveShowtimes(id)) {
+      throw new ResourceInUseException(
+          "Cannot delete movie with id '" + id + "' because it has active (scheduled) showtimes");
     }
 
-    movieRepository.deleteById(id);
+    movie.setActive(false);
+    movieRepository.save(movie);
   }
 
   /**

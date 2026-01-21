@@ -3,6 +3,7 @@ package dev.genesshoan.cinema_rest_api.movie;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -330,18 +331,25 @@ public class MovieServiceTest {
   }
 
   /**
-   * Verifies that deleting a movie which exists results in the repository
-   * delete operation being invoked.
+   * Verifies that deleting a movie which exists and has no active showtimes
+   * results in the movie being marked as inactive.
    */
   @Test
-  @DisplayName("If a movie exists, deleteMovieById should call repository delete")
-  void deleteMovieById_WhenExists_ShouldDelete() {
-    when(movieRepository.existsById(1L)).thenReturn(true);
+  @DisplayName("If a movie exists and has no active showtimes, deleteMovieById should soft delete it")
+  void deleteMovieById_WhenExistsAndNoActiveShowtimes_ShouldSoftDelete() {
+    Movie movie = new Movie();
+    movie.setId(1L);
+    movie.setActive(true);
+
+    when(movieRepository.findById(1L)).thenReturn(Optional.of(movie));
+    when(movieRepository.hasActiveShowtimes(1L)).thenReturn(false);
 
     movieService.deleteMovieById(1L);
 
-    verify(movieRepository).existsById(1L);
-    verify(movieRepository).deleteById(1L);
+    verify(movieRepository).findById(1L);
+    verify(movieRepository).hasActiveShowtimes(1L);
+    verify(movieRepository).save(movie);
+    assertThat(movie.getActive()).isFalse();
   }
 
   /**
@@ -351,14 +359,39 @@ public class MovieServiceTest {
   @Test
   @DisplayName("If a movie does not exist, deleteMovieById should throw ResourceNotFoundException")
   void deleteMovieById_WhenNotExists_ShouldThrowException() {
-    when(movieRepository.existsById(1L)).thenReturn(false);
+    when(movieRepository.findById(1L)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> movieService.deleteMovieById(1L))
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("Movie with id '1' does not exist");
 
-    verify(movieRepository).existsById(1L);
-    verify(movieRepository, never()).deleteById(1L);
+    verify(movieRepository).findById(1L);
+    verify(movieRepository, never()).hasActiveShowtimes(anyLong());
+    verify(movieRepository, never()).save(any(Movie.class));
+  }
+
+  /**
+   * Verifies that attempting to delete a movie with active showtimes results
+   * in a {@link ResourceInUseException} and the movie is not deleted.
+   */
+  @Test
+  @DisplayName("If a movie has active showtimes, deleteMovieById should throw ResourceInUseException")
+  void deleteMovieById_WhenHasActiveShowtimes_ShouldThrowException() {
+    Movie movie = new Movie();
+    movie.setId(1L);
+    movie.setActive(true);
+
+    when(movieRepository.findById(1L)).thenReturn(Optional.of(movie));
+    when(movieRepository.hasActiveShowtimes(1L)).thenReturn(true);
+
+    assertThatThrownBy(() -> movieService.deleteMovieById(1L))
+        .isInstanceOf(dev.genesshoan.cinema_rest_api.exception.ResourceInUseException.class)
+        .hasMessageContaining("Cannot delete movie with id '1' because it has active (scheduled) showtimes");
+
+    verify(movieRepository).findById(1L);
+    verify(movieRepository).hasActiveShowtimes(1L);
+    verify(movieRepository, never()).save(any(Movie.class));
+    assertThat(movie.getActive()).isTrue();
   }
 
   /**

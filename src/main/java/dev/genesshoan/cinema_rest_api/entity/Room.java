@@ -80,6 +80,22 @@ public class Room {
   private Integer seatsPerRow;
 
   /**
+   * Indicates whether this room is active in the system.
+   *
+   * <p>
+   * Active rooms (true) are visible and can be used for new showtimes.
+   * Inactive rooms (false) are soft-deleted and hidden from normal operations
+   * but preserved for historical records and existing showtime references.
+   * </p>
+   *
+   * <p>
+   * Default value is true for new rooms.
+   * </p>
+   */
+  @Column(nullable = false)
+  private Boolean active = true;
+
+  /**
    * Showtimes associated with this room.
    *
    * <p>

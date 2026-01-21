@@ -13,6 +13,7 @@ import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.exception.InvalidRequestException;
 import dev.genesshoan.cinema_rest_api.exception.OverlapingShowtimesException;
+import dev.genesshoan.cinema_rest_api.exception.ResourceInUseException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -129,6 +130,33 @@ public class DomainExceptionHandler {
         request);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
+  }
+
+  /**
+   * Handle attempts to delete a resource that is currently in use by other
+   * active entities.
+   *
+   * This prevents deletion of resources that have active dependencies, such as:
+   * - Movies with scheduled showtimes
+   * - Rooms with scheduled showtimes
+   *
+   * Returns HTTP 409 (Conflict) because the resource cannot be deleted while
+   * it has active references.
+   */
+  @ExceptionHandler(ResourceInUseException.class)
+  public ResponseEntity<ProblemDetail> handleResourceInUse(
+      ResourceInUseException ex,
+      HttpServletRequest request) {
+    log.warn("Resource in use: {} {} -> {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+    ProblemDetail problemDetail = ProblemDetailUtils.errorResponse(
+        HttpStatus.CONFLICT,
+        "Resource in use",
+        ex.getMessage(),
+        null,
+        request);
+
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
   }
 
 }

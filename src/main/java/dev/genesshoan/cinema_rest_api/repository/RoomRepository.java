@@ -1,6 +1,8 @@
 package dev.genesshoan.cinema_rest_api.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import dev.genesshoan.cinema_rest_api.entity.Room;
 
@@ -24,4 +26,22 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
    *         {@code false} otherwise
    */
   public boolean existsByName(String name);
+
+  /**
+   * Checks if a room has any active (scheduled or not yet completed) showtimes.
+   *
+   * A room is considered to have active showtimes if it has at least one
+   * showtime with status SCHEDULED.
+   *
+   * @param roomId the ID of the room to check
+   * @return {@code true} if the room has active showtimes, {@code false} otherwise
+   */
+  @Query("""
+        SELECT COUNT(s) > 0
+        FROM Room r
+        JOIN r.showtimes s
+        WHERE r.id = :roomId
+          AND s.status = 'SCHEDULED'
+      """)
+  public boolean hasActiveShowtimes(@Param("roomId") Long roomId);
 }
