@@ -1,5 +1,8 @@
 package dev.genesshoan.cinema_rest_api.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -21,8 +25,10 @@ import lombok.Setter;
  * JPA entity representing a seat in a cinema showtime.
  *
  * <p>
- * A seat is a specific position in a room assigned to a showtime. Each seat is identified
- * by its row number and seat number within that row, and belongs to exactly one showtime.
+ * A seat is a specific position in a room assigned to a showtime. Each seat is
+ * identified
+ * by its row number and seat number within that row, and belongs to exactly one
+ * showtime.
  * Seats track their availability status (AVAILABLE, RESERVED, OCCUPIED, etc.).
  * </p>
  *
@@ -33,7 +39,8 @@ import lombok.Setter;
  * <p>
  * Unique constraints:
  * <ul>
- * <li>The combination of showtime_id, row_number, and seat_number must be unique
+ * <li>The combination of showtime_id, row_number, and seat_number must be
+ * unique
  * to ensure no duplicate seats are created for the same showtime position</li>
  * </ul>
  * </p>
@@ -41,7 +48,8 @@ import lombok.Setter;
  * <p>
  * Relationships:
  * <ul>
- * <li>Many-to-One with {@link Showtime}: Each seat belongs to exactly one showtime</li>
+ * <li>Many-to-One with {@link Showtime}: Each seat belongs to exactly one
+ * showtime</li>
  * </ul>
  * </p>
  *
@@ -83,7 +91,8 @@ public class Seat {
    * The seat number within its row.
    *
    * <p>
-   * Seat numbers are 1-indexed within each row and correspond to physical seat positions.
+   * Seat numbers are 1-indexed within each row and correspond to physical seat
+   * positions.
    * Must be positive and not null.
    * </p>
    */
@@ -94,7 +103,8 @@ public class Seat {
    * The current availability status of this seat.
    *
    * <p>
-   * Tracks whether the seat is AVAILABLE for booking, RESERVED, OCCUPIED, or in another state.
+   * Tracks whether the seat is AVAILABLE for booking, RESERVED, OCCUPIED, or in
+   * another state.
    * Defaults to {@link SeatStatus#AVAILABLE} when created.
    * </p>
    *
@@ -110,7 +120,8 @@ public class Seat {
    * <p>
    * This is the owning side of the relationship. The foreign key
    * {@code showtime_id} is stored in the {@code seats} table.
-   * This relationship is mandatory - every seat must belong to exactly one showtime.
+   * This relationship is mandatory - every seat must belong to exactly one
+   * showtime.
    * </p>
    *
    * @see Showtime#seats
@@ -118,6 +129,20 @@ public class Seat {
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "showtime_id", nullable = false)
   private Showtime showtime;
+
+  /**
+   * The collection of tickets associated with this seat.
+   *
+   * <p>
+   * This is the inverse side of the relationship between Ticket and Seat.
+   * A seat can have multiple tickets over time, representing booking history
+   * and current reservations.
+   * </p>
+   *
+   * @see Ticket#seat
+   */
+  @OneToMany(mappedBy = "seat")
+  private List<Ticket> tickets = new ArrayList<>();
 
   @Override
   public int hashCode() {
