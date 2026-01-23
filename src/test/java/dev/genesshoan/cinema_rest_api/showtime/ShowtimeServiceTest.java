@@ -31,6 +31,7 @@ import dev.genesshoan.cinema_rest_api.exception.OverlapingShowtimesException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.mapper.ShowtimeMapper;
 import dev.genesshoan.cinema_rest_api.repository.ShowtimeRepository;
+import dev.genesshoan.cinema_rest_api.service.SeatService;
 import dev.genesshoan.cinema_rest_api.service.ShowtimeService;
 
 /**
@@ -54,6 +55,9 @@ public class ShowtimeServiceTest {
 
   @Mock
   private ShowtimeMapper showtimeMapper;
+
+  @Mock
+  private SeatService seatService;
 
   @InjectMocks
   private ShowtimeService showtimeService;
