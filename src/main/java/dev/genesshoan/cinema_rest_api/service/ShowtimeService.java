@@ -50,6 +50,7 @@ public class ShowtimeService {
   private final MovieService movieService;
   private final RoomService roomService;
   private final ShowtimeMapper showtimeMapper;
+  private final SeatService seatService;
 
   /**
    * Create and persist a new showtime.
@@ -84,11 +85,14 @@ public class ShowtimeService {
     movieService.getEntityById(showtimeCreateDTO.movieId())
         .addShowtime(showtime);
 
-    roomService.getEntityById(showtimeCreateDTO.roomId())
-        .addShowtime(showtime);
+    var room = roomService.getEntityById(showtimeCreateDTO.roomId());
+    room.addShowtime(showtime);
 
-    return showtimeMapper.toDto(
-        showtimeRepository.save(showtime));
+    Showtime savedShowtime = showtimeRepository.save(showtime);
+    
+    seatService.createSeatsForShowtime(savedShowtime, room);
+
+    return showtimeMapper.toDto(savedShowtime);
   }
 
   /**
