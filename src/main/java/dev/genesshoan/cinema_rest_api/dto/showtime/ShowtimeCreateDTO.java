@@ -1,4 +1,4 @@
-package dev.genesshoan.cinema_rest_api.dto;
+package dev.genesshoan.cinema_rest_api.dto.showtime;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

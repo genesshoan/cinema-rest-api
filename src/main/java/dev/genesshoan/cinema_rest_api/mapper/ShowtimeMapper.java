@@ -2,8 +2,8 @@ package dev.genesshoan.cinema_rest_api.mapper;
 
 import org.springframework.stereotype.Component;
 
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeCreateDTO;
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeCreateDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Showtime;
 
 /**

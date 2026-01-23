@@ -2,8 +2,8 @@ package dev.genesshoan.cinema_rest_api.mapper;
 
 import org.springframework.stereotype.Component;
 
-import dev.genesshoan.cinema_rest_api.dto.MovieRequestDTO;
-import dev.genesshoan.cinema_rest_api.dto.MovieResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.movie.MovieRequestDTO;
+import dev.genesshoan.cinema_rest_api.dto.movie.MovieResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Movie;
 
 /**

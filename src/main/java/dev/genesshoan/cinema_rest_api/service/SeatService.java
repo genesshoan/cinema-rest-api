@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.genesshoan.cinema_rest_api.dto.SeatInfoDTO;
-import dev.genesshoan.cinema_rest_api.dto.SeatMapResponseDTO;
-import dev.genesshoan.cinema_rest_api.dto.SeatMapRowDTO;
+import dev.genesshoan.cinema_rest_api.dto.seat.SeatInfoDTO;
+import dev.genesshoan.cinema_rest_api.dto.seat.SeatMapResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.seat.SeatMapRowDTO;
 import dev.genesshoan.cinema_rest_api.entity.Room;
 import dev.genesshoan.cinema_rest_api.entity.Seat;
 import dev.genesshoan.cinema_rest_api.entity.SeatStatus;

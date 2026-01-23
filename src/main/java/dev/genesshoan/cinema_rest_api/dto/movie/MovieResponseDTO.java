@@ -1,4 +1,4 @@
-package dev.genesshoan.cinema_rest_api.dto;
+package dev.genesshoan.cinema_rest_api.dto.movie;
 
 import java.time.LocalDate;
 

@@ -19,9 +19,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeCreateDTO;
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeResponseDTO;
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeUpdateDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeCreateDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeUpdateDTO;
 import dev.genesshoan.cinema_rest_api.entity.Movie;
 import dev.genesshoan.cinema_rest_api.entity.Room;
 import dev.genesshoan.cinema_rest_api.entity.Showtime;

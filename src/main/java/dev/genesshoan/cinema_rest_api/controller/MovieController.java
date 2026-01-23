@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.genesshoan.cinema_rest_api.dto.MovieRequestDTO;
-import dev.genesshoan.cinema_rest_api.dto.MovieResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.movie.MovieRequestDTO;
+import dev.genesshoan.cinema_rest_api.dto.movie.MovieResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;

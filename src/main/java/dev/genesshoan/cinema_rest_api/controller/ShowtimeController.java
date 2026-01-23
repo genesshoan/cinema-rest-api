@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeCreateDTO;
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeResponseDTO;
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeUpdateDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeCreateDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeUpdateDTO;
 import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.service.ShowtimeService;
 import jakarta.validation.constraints.Min;

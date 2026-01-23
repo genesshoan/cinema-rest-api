@@ -11,8 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.genesshoan.cinema_rest_api.dto.MovieRequestDTO;
-import dev.genesshoan.cinema_rest_api.dto.MovieResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.movie.MovieRequestDTO;
+import dev.genesshoan.cinema_rest_api.dto.movie.MovieResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Movie;
 import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;

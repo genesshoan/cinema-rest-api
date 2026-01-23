@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.genesshoan.cinema_rest_api.dto.RoomRequestDTO;
-import dev.genesshoan.cinema_rest_api.dto.RoomResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.room.RoomRequestDTO;
+import dev.genesshoan.cinema_rest_api.dto.room.RoomResponseDTO;
 import dev.genesshoan.cinema_rest_api.service.RoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

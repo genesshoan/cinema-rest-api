@@ -1,4 +1,4 @@
-package dev.genesshoan.cinema_rest_api.dto;
+package dev.genesshoan.cinema_rest_api.dto.seat;
 
 import dev.genesshoan.cinema_rest_api.entity.SeatStatus;
 

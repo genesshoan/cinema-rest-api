@@ -25,8 +25,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import dev.genesshoan.cinema_rest_api.dto.RoomRequestDTO;
-import dev.genesshoan.cinema_rest_api.dto.RoomResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.room.RoomRequestDTO;
+import dev.genesshoan.cinema_rest_api.dto.room.RoomResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Room;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;

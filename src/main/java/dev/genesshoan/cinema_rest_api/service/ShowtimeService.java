@@ -7,9 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeCreateDTO;
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeResponseDTO;
-import dev.genesshoan.cinema_rest_api.dto.ShowtimeUpdateDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeCreateDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeUpdateDTO;
 import dev.genesshoan.cinema_rest_api.entity.Showtime;
 import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.exception.InvalidRequestException;

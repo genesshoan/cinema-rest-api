@@ -2,8 +2,8 @@ package dev.genesshoan.cinema_rest_api.mapper;
 
 import org.springframework.stereotype.Component;
 
-import dev.genesshoan.cinema_rest_api.dto.SeatRequestDTO;
-import dev.genesshoan.cinema_rest_api.dto.SeatResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.seat.SeatRequestDTO;
+import dev.genesshoan.cinema_rest_api.dto.seat.SeatResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Seat;
 
 /**
