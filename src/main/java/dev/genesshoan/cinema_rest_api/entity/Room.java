@@ -124,11 +124,33 @@ public class Room {
   @OneToMany(mappedBy = "room")
   private List<Showtime> showtimes = new ArrayList<>();
 
+  /**
+   * Adds a showtime to this room while maintaining the bidirectional association.
+   *
+   * <p>
+   * This helper method updates both sides of the relationship: the given
+   * showtime is appended to this room's collection and its {@link Showtime#setRoom(Room)}
+   * is set to this room.
+   * </p>
+   *
+   * @param showtime the showtime to add; must not be null
+   */
   public void addShowtime(Showtime showtime) {
     showtimes.add(showtime);
     showtime.setRoom(this);
   }
 
+  /**
+   * Removes a showtime from this room while maintaining the bidirectional association.
+   *
+   * <p>
+   * This helper method updates both sides of the relationship: the given
+   * showtime is removed from this room's collection and its {@link Showtime#setRoom(Room)}
+   * reference is cleared.
+   * </p>
+   *
+   * @param showtime the showtime to remove; must not be null
+   */
   public void removeShowtime(Showtime showtime) {
     showtimes.remove(showtime);
     showtime.setRoom(null);

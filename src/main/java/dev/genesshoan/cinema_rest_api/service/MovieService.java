@@ -102,6 +102,18 @@ public class MovieService {
     return movieMapper.toDto(movie);
   }
 
+  /**
+   * Retrieves the Movie entity by its identifier.
+   *
+   * <p>
+   * This convenience method is intended for internal service usage when a full
+   * JPA entity is required instead of a DTO (e.g., for relationship wiring).
+   * </p>
+   *
+   * @param id the movie identifier
+   * @return the managed {@link Movie} entity corresponding to the given id
+   * @throws ResourceNotFoundException if no movie with the given id exists
+   */
   public Movie getEntityById(long id) {
     return movieRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Movie with id " + id + " was not found"));

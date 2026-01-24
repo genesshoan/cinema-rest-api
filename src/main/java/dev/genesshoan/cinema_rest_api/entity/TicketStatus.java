@@ -29,5 +29,5 @@ public enum TicketStatus {
    * The ticket has been used.
    * Customer has attended the showtime and the ticket has been validated/scanned.
    */
-  USED
+  CONSUMED
 }
