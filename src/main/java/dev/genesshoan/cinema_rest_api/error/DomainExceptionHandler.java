@@ -9,11 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import dev.genesshoan.cinema_rest_api.exception.IllegalStatusException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.exception.InvalidRequestException;
 import dev.genesshoan.cinema_rest_api.exception.OverlapingShowtimesException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceInUseException;
+import dev.genesshoan.cinema_rest_api.exception.SeatNotAvailableException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -157,6 +159,63 @@ public class DomainExceptionHandler {
         request);
 
     return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
+  }
+
+  /**
+   * Handle attempts to purchase or reserve seats that are not available.
+   *
+   * This occurs when:
+   * - One or more requested seats are already sold
+   * - Seats are in a reserved or non-available state
+   * - Concurrent ticket purchase attempts for the same seat
+   * - Requested seat IDs do not exist or belong to a different showtime
+   *
+   * Returns HTTP 409 (Conflict) to indicate that the purchase request conflicts
+   * with the current state of the seats.
+   */
+  @ExceptionHandler(SeatNotAvailableException.class)
+  public ResponseEntity<ProblemDetail> handleSeatNotAvailable(
+      SeatNotAvailableException ex,
+      HttpServletRequest request) {
+    log.warn("Seat not available: {} {} -> {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+    ProblemDetail problemDetail = ProblemDetailUtils.errorResponse(
+        HttpStatus.CONFLICT,
+        "Seat not available",
+        ex.getMessage(),
+        null,
+        request);
+
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
+  }
+
+  /**
+   * Handle attempts to perform operations on entities that are in an invalid
+   * or inappropriate status.
+   *
+   * This occurs when:
+   * - Attempting to sell tickets for a cancelled or completed showtime
+   * - Trying to use or modify a cancelled ticket
+   * - Performing operations on resources that are no longer in an active state
+   *
+   * Returns HTTP 422 (Unprocessable Entity) to indicate that the server
+   * understands the request but cannot process it due to the entity's current
+   * state.
+   */
+  @ExceptionHandler(IllegalStatusException.class)
+  public ResponseEntity<ProblemDetail> handleIllegalStatus(
+      IllegalStatusException ex,
+      HttpServletRequest request) {
+    log.warn("Illegal status: {} {} -> {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+    ProblemDetail problemDetail = ProblemDetailUtils.errorResponse(
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        "Illegal status",
+        ex.getMessage(),
+        null,
+        request);
+
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);
   }
 
 }
