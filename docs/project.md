@@ -1,10 +1,18 @@
 ## Overview
 
 **Problem it solves:**
+Cinema REST API provides a comprehensive backend solution for managing cinema operations including movies, rooms, showtimes, seats, and ticket bookings. It solves the problem of efficiently managing cinema resources and providing a seamless booking experience.
 
 **Target users:**
+- Cinema administrators and staff
+- Third-party cinema booking applications
+- Frontend developers building cinema interfaces
 
 **Core functionality:**
+- Movie catalog management with genre filtering and search
+- Cinema room and seat configuration management
+- Showtime scheduling and availability tracking
+- Ticket booking and reservation system with seat selection
 
 ## Tech Stack
 
@@ -36,48 +44,132 @@
 
 
 ### Non-Functional Requirements
-- Performance:
-- Security:
-- Scalability:
+- **Performance:** Fast response times for seat availability queries and booking operations
+- **Security:** Input validation, SQL injection prevention, data integrity constraints
+- **Scalability:** Designed to handle multiple concurrent bookings and seat reservations
 
 ## Data Model
 
 ### Entities
 
-**Entity Name:**
+**Movie:**
 ```
-- field1: type
-- field2: type
-- relationships:
+- id: Long
+- title: String
+- description: String
+- duration: Integer (minutes)
+- genre: String
+- releaseDate: LocalDate
+- relationships: One-to-Many with Showtime
+```
+
+**Room:**
+```
+- id: Long
+- name: String
+- rows: Integer
+- seatsPerRow: Integer
+- relationships: One-to-Many with Seat, One-to-Many with Showtime
+```
+
+**Seat:**
+```
+- id: Long
+- rowNumber: Integer
+- seatNumber: Integer
+- status: SeatStatus (AVAILABLE, SOLD)
+- relationships: Many-to-One with Room, One-to-Many with Ticket
+```
+
+**Showtime:**
+```
+- id: Long
+- startTime: LocalDateTime
+- endTime: LocalDateTime
+- status: ShowtimeStatus (SCHEDULED, ONGOING, COMPLETED, CANCELLED)
+- relationships: Many-to-One with Movie, Many-to-One with Room, One-to-Many with Ticket
+```
+
+**Ticket:**
+```
+- id: Long
+- price: BigDecimal
+- purchaseDate: LocalDateTime
+- status: TicketStatus (ACTIVE, CONSUMED, CANCELLED)
+- relationships: Many-to-One with Showtime, Many-to-One with Seat
 ```
 
 ### Database Decisions
-- **Normalization level:** 
+- **Normalization level:** 3NF - entities are properly normalized to reduce redundancy
 - **Index strategy:**
-  - Index on X because:
-  - Composite index on Y, Z because:
-- **Why this schema:**
+  - Index on `Movie.title` and `Movie.genre` for efficient search operations
+  - Index on `Showtime.startTime` for efficient showtime queries
+  - Composite index on `Seat.room_id`, `Seat.rowNumber`, `Seat.seatNumber` for seat lookups
+- **Why this schema:** Supports efficient queries for availability checks, prevents overbooking through constraints, and maintains data integrity
 
 ### Diagram
-Link to Excalidraw or embed here.
+<!-- TODO: Add ER Diagram -->
+```
+[Placeholder for Entity Relationship Diagram]
+
+Expected diagram showing:
+- Movie ←→ Showtime (1:N)
+- Room ←→ Showtime (1:N)
+- Room ←→ Seat (1:N)
+- Showtime ←→ Ticket (1:N)
+- Seat ←→ Ticket (1:N)
+```
+
+**Diagram Link:** [Add Excalidraw/Draw.io link here]
 
 ## API Design
 
 ### Endpoints
 
+**Movies:**
 ```
-POST   /api/resource        - Description
-GET    /api/resource        - Description
-GET    /api/resource/{id}   - Description
-PUT    /api/resource/{id}   - Description
-DELETE /api/resource/{id}   - Description
+POST   /api/movies              - Create a new movie
+GET    /api/movies              - List all active movies (with optional filters: title, genre)
+GET    /api/movies/{id}         - Get movie details
+PUT    /api/movies/{id}         - Update movie information
+DELETE /api/movies/{id}         - Delete movie (only if no scheduled shows)
+GET    /api/movies/search       - Search movies by title or genre
+```
+
+**Rooms:**
+```
+POST   /api/rooms               - Create a room with seat configuration
+GET    /api/rooms               - List all rooms
+GET    /api/rooms/{id}          - Get room details with seat layout
+PUT    /api/rooms/{id}          - Update room information
+DELETE /api/rooms/{id}          - Delete room (only if no active shows)
+GET    /api/rooms/{id}/seats    - Get seat configuration for a room
+```
+
+**Showtimes:**
+```
+POST   /api/showtimes           - Schedule a new showtime
+GET    /api/showtimes           - List showtimes (with filters: movie, date, room)
+GET    /api/showtimes/{id}      - Get showtime details with availability
+PUT    /api/showtimes/{id}      - Update showtime
+DELETE /api/showtimes/{id}      - Cancel showtime
+GET    /api/showtimes/{id}/availability - Get seat availability
+```
+
+**Tickets:**
+```
+POST   /api/tickets             - Book tickets (reserve seats)
+GET    /api/tickets/{id}        - Get ticket details
+PUT    /api/tickets/{id}/confirm - Confirm ticket purchase
+PUT    /api/tickets/{id}/cancel  - Cancel ticket
+GET    /api/tickets             - List tickets (with filters)
 ```
 
 ### Design Decisions
-- **RESTful conventions:**
-- **Versioning strategy:**
-- **Request/Response format:**
-- **Error handling approach:**
+- **RESTful conventions:** Standard HTTP methods (GET, POST, PUT, DELETE) with proper status codes
+- **Versioning strategy:** No explicit version prefix currently; endpoints are exposed directly under resource paths (e.g. `/movies`, `/tickets`)
+- **Request/Response format:** JSON request/response DTOs by resource
+- **Error handling approach:** Global exception handling with HTTP Problem Details
 
 ## Architecture
 
@@ -94,31 +186,45 @@ Database
 
 ### Design Patterns Used
 
-**[[Pattern Name]]**
-- Where: 
-- Why:
-- Alternative considered:
+**Repository Pattern**
+- Where: Data access layer using Spring Data JPA repositories
+- Why: Abstracts database operations and provides clean separation of concerns
+- Alternative considered: Direct JDBC access (too verbose and error-prone)
 
-**[[Pattern Name]]**
-- Where:
-- Why:
-- Trade-offs:
+**DTO (Data Transfer Object) Pattern**
+- Where: API request/response handling
+- Why: Decouples internal entity structure from API contract, enables validation
+- Trade-offs: Additional mapping code, but better encapsulation and API stability
+
+**Service Layer Pattern**
+- Where: Business logic between controllers and repositories
+- Why: Centralizes business rules, transaction management, and orchestration
+- Alternative considered: Fat controllers (violates single responsibility principle)
+
+**Builder Pattern**
+- Where: Entity and DTO construction (via Lombok @Builder)
+- Why: Improves readability and makes object creation more flexible
+- Trade-offs: None with Lombok, as it's generated at compile time
 
 ## Security Considerations
 
 ### Authentication
-- Strategy:
-- Why this approach:
+- Strategy: Currently not implemented (planned for future iteration)
+- Why this approach: Focus on core functionality first, authentication layer to be added
 
 ### Authorization
-- Role-based/Permission-based:
-- Implementation:
+- Role-based/Permission-based: Planned for future (Admin, Staff, Customer roles)
+- Implementation: Will use Spring Security with JWT tokens
 
 ### Data validation
-- Where:
-- How:
+- Where: Controller layer using Bean Validation annotations
+- How: `@Valid` annotations on DTOs, custom validators for business rules
 
 ### Other security measures:
+- SQL injection prevention through JPA/Hibernate parameterized queries
+- Input sanitization through validation constraints
+- Database constraints to prevent data integrity violations
+- Proper error messages that don't leak sensitive information
 
 ## Testing Strategy
 
