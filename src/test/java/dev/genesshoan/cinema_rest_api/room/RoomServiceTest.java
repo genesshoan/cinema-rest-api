@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 
 import dev.genesshoan.cinema_rest_api.dto.room.RoomRequestDTO;
 import dev.genesshoan.cinema_rest_api.dto.room.RoomResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.room.RoomSeatsResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Room;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
@@ -213,6 +214,23 @@ public class RoomServiceTest {
         .hasMessageContaining("Room with id 1 was not found");
 
     verify(roomMapper, never()).toDto(any());
+  }
+
+  /**
+   * Verifies that seat configuration summary is returned with computed capacity.
+   */
+  @Test
+  @DisplayName("getRoomSeats should return room layout summary")
+  void getRoomSeats_WhenRoomExists_ShouldReturnLayoutSummary() {
+    when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
+
+    RoomSeatsResponseDTO result = roomService.getRoomSeats(room.getId());
+
+    assertThat(result.roomId()).isEqualTo(room.getId());
+    assertThat(result.roomName()).isEqualTo(room.getName());
+    assertThat(result.rows()).isEqualTo(room.getRows());
+    assertThat(result.seatsPerRow()).isEqualTo(room.getSeatsPerRow());
+    assertThat(result.totalCapacity()).isEqualTo(room.getRows() * room.getSeatsPerRow());
   }
 
   /**

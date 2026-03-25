@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.genesshoan.cinema_rest_api.dto.room.RoomRequestDTO;
 import dev.genesshoan.cinema_rest_api.dto.room.RoomResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.room.RoomSeatsResponseDTO;
 import dev.genesshoan.cinema_rest_api.service.RoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -93,6 +94,17 @@ public class RoomController {
   @GetMapping("/{id}")
   public RoomResponseDTO getRoomById(@PathVariable @Min(value = 1, message = "{id.min}") long id) {
     return roomService.getRoomById(id);
+  }
+
+  /**
+   * Retrieve static seat layout configuration for a room.
+   *
+   * @param id the room id (must be >= 1)
+   * @return a room seat configuration summary
+   */
+  @GetMapping("/{id}/seats")
+  public RoomSeatsResponseDTO getRoomSeats(@PathVariable @Min(value = 1, message = "{id.min}") long id) {
+    return roomService.getRoomSeats(id);
   }
 
   /**

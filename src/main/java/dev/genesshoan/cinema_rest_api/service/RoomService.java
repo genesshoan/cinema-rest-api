@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dev.genesshoan.cinema_rest_api.dto.room.RoomRequestDTO;
 import dev.genesshoan.cinema_rest_api.dto.room.RoomResponseDTO;
+import dev.genesshoan.cinema_rest_api.dto.room.RoomSeatsResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Room;
 import dev.genesshoan.cinema_rest_api.exception.ResourceAlreadyExistsException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
@@ -91,6 +92,24 @@ public class RoomService {
   public Room getEntityById(long id) {
     return roomRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " was not found"));
+  }
+
+  /**
+   * Retrieves static seat layout configuration for a room.
+   *
+   * @param id room identifier
+   * @return room seat layout summary
+   */
+  public RoomSeatsResponseDTO getRoomSeats(long id) {
+    Room room = getEntityById(id);
+    int totalCapacity = room.getRows() * room.getSeatsPerRow();
+
+    return new RoomSeatsResponseDTO(
+        room.getId(),
+        room.getName(),
+        room.getRows(),
+        room.getSeatsPerRow(),
+        totalCapacity);
   }
 
   /**
