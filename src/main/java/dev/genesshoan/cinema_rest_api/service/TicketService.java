@@ -147,10 +147,13 @@ public class TicketService {
             .collect(Collectors.toList()));
   }
 
-  // TODO: refactor mapper to avoid deep lazy traversal (N+1 risk)
-
   /**
    * Retrieves a ticket by its identifier and maps it to a DTO.
+   *
+   * <p>
+   * Uses a repository query with eager detail loading to avoid deep lazy
+   * traversal while mapping nested seat/showtime/movie fields.
+   * </p>
    *
    * @param id the ticket identifier
    * @return a DTO representation of the ticket
