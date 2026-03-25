@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.genesshoan.cinema_rest_api.dto.seat.SeatMapResponseDTO;
 import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeCreateDTO;
 import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeResponseDTO;
 import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeUpdateDTO;
 import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
+import dev.genesshoan.cinema_rest_api.service.SeatService;
 import dev.genesshoan.cinema_rest_api.service.ShowtimeService;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -35,7 +37,7 @@ import lombok.AllArgsConstructor;
  * </p>
  *
  * <p>
- * All endpoints are mapped under the base path {@code /showtime}.
+ * All endpoints are mapped under the base path {@code /showtimes}.
  * </p>
  *
  * @see ShowtimeService
@@ -46,10 +48,11 @@ import lombok.AllArgsConstructor;
  */
 @RestController
 @AllArgsConstructor
-@RequestMapping("/showtime")
+@RequestMapping("/showtimes")
 @Validated
 public class ShowtimeController {
   private final ShowtimeService showtimeService;
+  private final SeatService seatService;
 
   /**
    * Creates a new showtime in the system.
@@ -84,7 +87,7 @@ public class ShowtimeController {
    * </p>
    *
    * <p>
-   * Example query: {@code GET /showtime?dateTime=2026-01-21&roomId=1&movieId=5&status=SCHEDULED&page=0&size=10}
+   * Example query: {@code GET /showtimes?dateTime=2026-01-21&roomId=1&movieId=5&status=SCHEDULED&page=0&size=10}
    * </p>
    *
    * @param dateTime the date to search for showtimes (day precision); can be null
@@ -117,6 +120,23 @@ public class ShowtimeController {
   @GetMapping("/{id}")
   public ShowtimeResponseDTO getShowtimeById(@PathVariable @Min(value = 1, message = "{id.min}") long id) {
     return showtimeService.getShowtimeById(id);
+  }
+
+  /**
+   * Retrieves seat availability for a specific showtime.
+   *
+   * <p>
+   * This endpoint exposes availability as a showtime concern and delegates to
+   * the seat map service.
+   * </p>
+   *
+   * @param id the showtime ID; must be greater than 0
+   * @return the seat map with availability information
+   */
+  @GetMapping("/{id}/availability")
+  public SeatMapResponseDTO getShowtimeAvailability(
+      @PathVariable @Min(value = 1, message = "{id.min}") long id) {
+    return seatService.getSeatMap(id);
   }
 
   /**

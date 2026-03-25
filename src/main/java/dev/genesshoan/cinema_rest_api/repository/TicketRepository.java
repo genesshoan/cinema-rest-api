@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import dev.genesshoan.cinema_rest_api.entity.Ticket;
+import dev.genesshoan.cinema_rest_api.entity.TicketStatus;
 import jakarta.persistence.LockModeType;
 
 /**
@@ -25,7 +26,8 @@ import jakarta.persistence.LockModeType;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
   /**
-   * Retrieves a ticket by ID with a pessimistic write lock and eagerly fetches the seat association.
+   * Retrieves a ticket by ID with a pessimistic write lock and eagerly fetches
+   * the seat association.
    * 
    * <p>
    * This method acquires a database-level write lock on the ticket entity
@@ -59,4 +61,15 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             WHERE t.id = :id
       """)
   Optional<Ticket> findByIdForUpdate(@Param("id") Long id);
+
+  @Query("""
+        SELECT COUNT(t) > 0
+        FROM Ticket t
+        JOIN t.seat s
+        WHERE s.showtime.id = :showtime_id
+          AND t.status = :status
+      """)
+  boolean existsBySeatShowtimeIdAndStatus(
+      @Param("showtime_id") Long showtimeId,
+      @Param("status") TicketStatus status);
 }

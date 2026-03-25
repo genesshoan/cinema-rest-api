@@ -14,6 +14,7 @@ import dev.genesshoan.cinema_rest_api.dto.ticket.TicketSaleResponseDTO;
 import dev.genesshoan.cinema_rest_api.entity.Seat;
 import dev.genesshoan.cinema_rest_api.entity.SeatStatus;
 import dev.genesshoan.cinema_rest_api.entity.Showtime;
+import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.entity.Ticket;
 import dev.genesshoan.cinema_rest_api.entity.TicketStatus;
 import dev.genesshoan.cinema_rest_api.exception.IllegalStatusException;
@@ -103,6 +104,10 @@ public class TicketService {
     Showtime showtime = showtimeRepository.findById(requestDTO.showtimeId())
         .orElseThrow(
             () -> new ResourceNotFoundException("Showtime with id " + requestDTO.showtimeId() + " does not exist"));
+
+    if (showtime.getStatus() != ShowtimeStatus.SCHEDULED) {
+      throw new IllegalStatusException("The showtime with id " + requestDTO.showtimeId() + " is not active");
+    }
 
     List<Seat> seats = seatRepository.findAvailableByIdsForUpdate(requestDTO.seatIds());
 
@@ -202,5 +207,9 @@ public class TicketService {
     }
 
     ticket.setStatus(TicketStatus.CONSUMED);
+  }
+
+  public boolean hasActiveTicketsByShowtimeId(Long showtimeId) {
+    return ticketRepository.existsBySeatShowtimeIdAndStatus(showtimeId, TicketStatus.ACTIVE);
   }
 }

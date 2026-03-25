@@ -28,11 +28,13 @@ import dev.genesshoan.cinema_rest_api.entity.Showtime;
 import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.exception.InvalidRequestException;
 import dev.genesshoan.cinema_rest_api.exception.OverlapingShowtimesException;
+import dev.genesshoan.cinema_rest_api.exception.ResourceInUseException;
 import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.mapper.ShowtimeMapper;
 import dev.genesshoan.cinema_rest_api.repository.ShowtimeRepository;
 import dev.genesshoan.cinema_rest_api.service.SeatService;
 import dev.genesshoan.cinema_rest_api.service.ShowtimeService;
+import dev.genesshoan.cinema_rest_api.service.TicketService;
 
 /**
  * Unit tests for {@link ShowtimeService}.
@@ -58,6 +60,9 @@ public class ShowtimeServiceTest {
 
   @Mock
   private SeatService seatService;
+
+  @Mock
+  private TicketService ticketService;
 
   @InjectMocks
   private ShowtimeService showtimeService;
@@ -222,11 +227,13 @@ public class ShowtimeServiceTest {
   @DisplayName("cancelShowtime - exists: should set status to CANCELLED")
   void cancelShowtime_WhenExists_ShouldSetCancelled() {
     when(showtimeRepository.findById(100L)).thenReturn(Optional.of(showtime));
+    when(ticketService.hasActiveTicketsByShowtimeId(100L)).thenReturn(false);
 
     showtimeService.cancelShowtime(100L);
 
     assertThat(showtime.getStatus()).isEqualTo(ShowtimeStatus.CANCELLED);
     verify(showtimeRepository).findById(100L);
+    verify(ticketService).hasActiveTicketsByShowtimeId(100L);
   }
 
   /**
@@ -242,5 +249,21 @@ public class ShowtimeServiceTest {
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("Showtime with id '100' does not exist");
   }
-}
 
+  /**
+   * Verifies that cancelling a showtime with active tickets is rejected.
+   */
+  @Test
+  @DisplayName("cancelShowtime - active tickets: should throw ResourceInUseException")
+  void cancelShowtime_WhenHasActiveTickets_ShouldThrowResourceInUseException() {
+    when(showtimeRepository.findById(100L)).thenReturn(Optional.of(showtime));
+    when(ticketService.hasActiveTicketsByShowtimeId(100L)).thenReturn(true);
+
+    assertThatThrownBy(() -> showtimeService.cancelShowtime(100L))
+        .isInstanceOf(ResourceInUseException.class)
+        .hasMessageContaining("Cannot cancel showtime with id '100' because it has active tickets");
+
+    assertThat(showtime.getStatus()).isEqualTo(ShowtimeStatus.SCHEDULED);
+    verify(ticketService).hasActiveTicketsByShowtimeId(100L);
+  }
+}
