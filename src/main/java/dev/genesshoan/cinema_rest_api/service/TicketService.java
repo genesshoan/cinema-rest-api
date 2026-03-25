@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +47,9 @@ import lombok.RequiredArgsConstructor;
  * <li>getTicketById: retrieves a single ticket and maps it to a DTO</li>
  * <li>cancelTicket: marks a ticket as CANCELLED and restores the associated
  * seat to AVAILABLE</li>
+ * <li>confirmTicket: confirms a ticket purchase in the current flow by consuming
+ * it</li>
+ * <li>listTickets: returns paginated tickets with optional filters</li>
  * <li>consumeTicket: marks a ticket as CONSUMED for entry validation</li>
  * </ul>
  * </p>
@@ -152,10 +157,26 @@ public class TicketService {
    * @throws ResourceNotFoundException if the ticket does not exist
    */
   public TicketResponseDTO getTicketById(long id) {
-    Ticket ticket = ticketRepository.findById(id)
+    Ticket ticket = ticketRepository.findByIdWithDetails(id)
         .orElseThrow(() -> new ResourceNotFoundException("Ticket with id " + id + "does not exist"));
 
     return ticketMapper.toDto(ticket);
+  }
+
+  /**
+   * Lists tickets using optional filters and pagination.
+   *
+   * @param showtimeId optional showtime identifier filter
+   * @param status     optional ticket status filter
+   * @param pageable   pagination and sorting information
+   * @return a paginated list of ticket response DTOs
+   */
+  public Page<TicketResponseDTO> listTickets(
+      Long showtimeId,
+      TicketStatus status,
+      Pageable pageable) {
+    return ticketRepository.search(showtimeId, status, pageable)
+        .map(ticketMapper::toDto);
   }
 
   /**
@@ -207,6 +228,21 @@ public class TicketService {
     }
 
     ticket.setStatus(TicketStatus.CONSUMED);
+  }
+
+  /**
+   * Confirms a ticket purchase.
+   *
+   * <p>
+   * In the current ACTIVE/CANCELLED/CONSUMED model, confirmation maps to consume
+   * semantics.
+   * </p>
+   *
+   * @param id the ticket identifier
+   */
+  @Transactional
+  public void confirmTicket(long id) {
+    consumeTicket(id);
   }
 
   public boolean hasActiveTicketsByShowtimeId(Long showtimeId) {

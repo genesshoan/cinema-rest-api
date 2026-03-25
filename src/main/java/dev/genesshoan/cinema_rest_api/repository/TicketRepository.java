@@ -2,6 +2,9 @@ package dev.genesshoan.cinema_rest_api.repository;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -25,6 +28,27 @@ import jakarta.persistence.LockModeType;
  */
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
+  @EntityGraph(attributePaths = { "seat", "seat.showtime", "seat.showtime.movie" })
+  @Query("""
+      SELECT t
+      FROM Ticket t
+      WHERE t.id = :id
+      """)
+  Optional<Ticket> findByIdWithDetails(@Param("id") Long id);
+
+  @EntityGraph(attributePaths = { "seat", "seat.showtime", "seat.showtime.movie" })
+  @Query("""
+      SELECT t
+      FROM Ticket t
+      JOIN t.seat s
+      WHERE (:showtime_id IS NULL OR s.showtime.id = :showtime_id)
+        AND (:status IS NULL OR t.status = :status)
+      """)
+  Page<Ticket> search(
+      @Param("showtime_id") Long showtimeId,
+      @Param("status") TicketStatus status,
+      Pageable pageable);
+
   /**
    * Retrieves a ticket by ID with a pessimistic write lock and eagerly fetches
    * the seat association.
