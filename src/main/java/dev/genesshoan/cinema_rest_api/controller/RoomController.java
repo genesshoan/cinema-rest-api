@@ -1,5 +1,6 @@
 package dev.genesshoan.cinema_rest_api.controller;
 
+import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
