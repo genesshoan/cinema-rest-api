@@ -1,5 +1,6 @@
 package dev.genesshoan.cinema_rest_api.mapper;
 
+import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import org.springframework.stereotype.Component;
 
 import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeCreateDTO;
@@ -32,6 +33,8 @@ public class ShowtimeMapper {
     Showtime showtime = new Showtime();
     showtime.setStartTime(showtimeCreateDTO.startTime());
     showtime.setEndTime(showtimeCreateDTO.endTime());
+    showtime.setBasePrice(showtimeCreateDTO.basePrice());
+    showtime.setStatus(ShowtimeStatus.SCHEDULED);
     return showtime;
   }
 }
