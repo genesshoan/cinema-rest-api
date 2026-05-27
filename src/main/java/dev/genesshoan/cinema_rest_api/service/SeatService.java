@@ -49,7 +49,7 @@ public class SeatService {
    *         data
    */
   public SeatMapResponseDTO getSeatMap(long showtimeId) {
-    List<Seat> seats = seatRepository.findByIdOrderByRowNumberAscSeatNumberAsc(showtimeId);
+    List<Seat> seats = seatRepository.findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(showtimeId);
 
     Map<Integer, List<SeatInfoDTO>> seatsByRow = seats.stream()
         .collect(Collectors.groupingBy(

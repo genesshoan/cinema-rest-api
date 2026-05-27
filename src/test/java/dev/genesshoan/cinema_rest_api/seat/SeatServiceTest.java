@@ -1,7 +1,6 @@
 package dev.genesshoan.cinema_rest_api.seat;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -73,7 +72,7 @@ public class SeatServiceTest {
         createSeat(3L, 2, 1, SeatStatus.AVAILABLE),
         createSeat(4L, 2, 2, SeatStatus.AVAILABLE));
 
-    when(seatRepository.findByIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
+    when(seatRepository.findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
 
     SeatMapResponseDTO result = seatService.getSeatMap(100L);
 
@@ -86,7 +85,7 @@ public class SeatServiceTest {
     assertThat(result.rows().get(1).seats()).hasSize(2);
     assertThat(result.occupancyPercentage()).isEqualTo(25.0);
 
-    verify(seatRepository).findByIdOrderByRowNumberAscSeatNumberAsc(100L);
+    verify(seatRepository).findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(100L);
   }
 
   /**
@@ -101,7 +100,7 @@ public class SeatServiceTest {
         createSeat(3L, 1, 3, SeatStatus.AVAILABLE),
         createSeat(4L, 1, 4, SeatStatus.AVAILABLE));
 
-    when(seatRepository.findByIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
+    when(seatRepository.findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
 
     SeatMapResponseDTO result = seatService.getSeatMap(100L);
 
@@ -118,7 +117,7 @@ public class SeatServiceTest {
         createSeat(1L, 1, 1, SeatStatus.AVAILABLE),
         createSeat(2L, 1, 2, SeatStatus.AVAILABLE));
 
-    when(seatRepository.findByIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
+    when(seatRepository.findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
 
     SeatMapResponseDTO result = seatService.getSeatMap(100L);
 
@@ -135,7 +134,7 @@ public class SeatServiceTest {
         createSeat(1L, 1, 1, SeatStatus.SOLD),
         createSeat(2L, 1, 2, SeatStatus.SOLD));
 
-    when(seatRepository.findByIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
+    when(seatRepository.findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
 
     SeatMapResponseDTO result = seatService.getSeatMap(100L);
 
@@ -148,7 +147,7 @@ public class SeatServiceTest {
   @Test
   @DisplayName("getSeatMap - no seats: should return empty map with 0% occupancy")
   void getSeatMap_WhenNoSeats_ShouldReturnEmptyMap() {
-    when(seatRepository.findByIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(Collections.emptyList());
+    when(seatRepository.findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(Collections.emptyList());
 
     SeatMapResponseDTO result = seatService.getSeatMap(100L);
 
@@ -169,7 +168,7 @@ public class SeatServiceTest {
         createSeat(2L, 1, 1, SeatStatus.AVAILABLE),
         createSeat(3L, 2, 1, SeatStatus.AVAILABLE));
 
-    when(seatRepository.findByIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
+    when(seatRepository.findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(100L)).thenReturn(seats);
 
     SeatMapResponseDTO result = seatService.getSeatMap(100L);
 
