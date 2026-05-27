@@ -24,6 +24,7 @@ import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeUpdateDTO;
 import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.service.SeatService;
 import dev.genesshoan.cinema_rest_api.service.ShowtimeService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 
@@ -37,7 +38,7 @@ import lombok.AllArgsConstructor;
  * </p>
  *
  * <p>
- * All endpoints are mapped under the base path {@code /showtimes}.
+ * All endpoints are mapped under the base path {@code /api/v1/showtimes}.
  * </p>
  *
  * @see ShowtimeService
@@ -48,7 +49,7 @@ import lombok.AllArgsConstructor;
  */
 @RestController
 @AllArgsConstructor
-@RequestMapping("/showtimes")
+@RequestMapping("/api/v1/showtimes")
 @Validated
 public class ShowtimeController {
   private final ShowtimeService showtimeService;
@@ -73,7 +74,7 @@ public class ShowtimeController {
    * @see ShowtimeService#createShowtime(ShowtimeCreateDTO)
    */
   @PostMapping
-  public ShowtimeResponseDTO createShowtime(@RequestBody ShowtimeCreateDTO showtimeCreateDTO) {
+  public ShowtimeResponseDTO createShowtime(@Valid @RequestBody ShowtimeCreateDTO showtimeCreateDTO) {
     return showtimeService.createShowtime(showtimeCreateDTO);
   }
 
@@ -87,7 +88,7 @@ public class ShowtimeController {
    * </p>
    *
    * <p>
-   * Example query: {@code GET /showtimes?dateTime=2026-01-21&roomId=1&movieId=5&status=SCHEDULED&page=0&size=10}
+   * Example query: {@code GET /api/v1/showtimes?dateTime=2026-01-21&roomId=1&movieId=5&status=SCHEDULED&page=0&size=10}
    * </p>
    *
    * @param dateTime the date to search for showtimes (day precision); can be null
@@ -101,10 +102,10 @@ public class ShowtimeController {
    */
   @GetMapping
   public Page<ShowtimeResponseDTO> search(
-      @RequestParam LocalDate dateTime,
-      @RequestParam Long roomId,
-      @RequestParam Long movieId,
-      @RequestParam ShowtimeStatus status,
+      @RequestParam(required = false) LocalDate dateTime,
+      @RequestParam(required = false) Long roomId,
+      @RequestParam(required = false) Long movieId,
+      @RequestParam(required = false) ShowtimeStatus status,
       Pageable pageable) {
     return showtimeService.search(dateTime, roomId, movieId, status, pageable);
   }
@@ -162,7 +163,7 @@ public class ShowtimeController {
   @PutMapping("/{id}")
   public ShowtimeResponseDTO updateShowtime(
       @PathVariable(required = true) @Min(value = 1, message = "{id.min}") long id,
-      @RequestBody ShowtimeUpdateDTO showtimeUpdateDTO) {
+      @Valid @RequestBody ShowtimeUpdateDTO showtimeUpdateDTO) {
     return showtimeService.updateShowtime(id, showtimeUpdateDTO);
   }
 

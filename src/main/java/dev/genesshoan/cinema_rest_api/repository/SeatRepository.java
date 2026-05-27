@@ -30,7 +30,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
    * @return List of seats sorted by row number (ascending) and seat number
    *         (ascending)
    */
-  List<Seat> findByIdOrderByRowNumberAscSeatNumberAsc(Long showtimeId);
+  List<Seat> findByShowtimeIdOrderByRowNumberAscSeatNumberAsc(Long showtimeId);
 
   /**
    * Counts the number of available seats matching the given IDs.

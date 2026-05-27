@@ -39,7 +39,7 @@ import lombok.AllArgsConstructor;
  * </p>
  *
  * <p>
- * Base URL: {@code /movies}
+ * Base URL: {@code /api/v1/movies}
  * </p>
  *
  * <p>
@@ -59,7 +59,7 @@ import lombok.AllArgsConstructor;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/movies")
+@RequestMapping("/api/v1/movies")
 @Validated
 @AllArgsConstructor
 public class MovieController {
@@ -113,11 +113,11 @@ public class MovieController {
    * <p>
    * Examples:
    * <ul>
-   * <li>{@code GET /movies?title=sunrise} - finds movies containing
+   * <li>{@code GET /api/v1/movies?title=sunrise} - finds movies containing
    * "sunrise"</li>
-   * <li>{@code GET /movies?genre=romance} - finds movies in the romance
+   * <li>{@code GET /api/v1/movies?genre=romance} - finds movies in the romance
    * genre</li>
-   * <li>{@code GET /movies?title=before&genre=romance} - combines both
+   * <li>{@code GET /api/v1/movies?title=before&genre=romance} - combines both
    * filters</li>
    * </ul>
    * </p>
@@ -131,24 +131,8 @@ public class MovieController {
    */
   @GetMapping
   public Page<MovieResponseDTO> search(
-      @RequestParam(required = false) @NotBlank(message = "{movie.title.required}") @Size(max = 255, message = "{movie.title.size}") String title,
-      @RequestParam(required = false) @NotBlank(message = "{movie.genre.required}") @Size(max = 30, message = "{movie.genre.size}") String genre,
-      Pageable pageable) {
-    return movieService.search(title, genre, pageable);
-  }
-
-  /**
-   * Dedicated alias for searching movies by title and/or genre.
-   *
-   * @param title    optional title search term
-   * @param genre    optional genre search term
-   * @param pageable pagination and sorting parameters
-   * @return a page of matching movies
-   */
-  @GetMapping("/search")
-  public Page<MovieResponseDTO> searchAlias(
-      @RequestParam(required = false) @NotBlank(message = "{movie.title.required}") @Size(max = 255, message = "{movie.title.size}") String title,
-      @RequestParam(required = false) @NotBlank(message = "{movie.genre.required}") @Size(max = 30, message = "{movie.genre.size}") String genre,
+      @RequestParam(required = false) @Size(max = 255, message = "{movie.title.size}") String title,
+      @RequestParam(required = false) @Size(max = 30, message = "{movie.genre.size}") String genre,
       Pageable pageable) {
     return movieService.search(title, genre, pageable);
   }

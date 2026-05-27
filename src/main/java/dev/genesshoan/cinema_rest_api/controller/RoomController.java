@@ -1,5 +1,6 @@
 package dev.genesshoan.cinema_rest_api.controller;
 
+import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ import lombok.RequiredArgsConstructor;
  * </p>
  *
  * <p>
- * Base URL: {@code /rooms}
+ * Base URL: {@code /api/v1/rooms}
  * </p>
  *
  * <p>
@@ -56,7 +57,7 @@ import lombok.RequiredArgsConstructor;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/api/v1/rooms")
 @Validated
 @RequiredArgsConstructor
 public class RoomController {
@@ -129,7 +130,7 @@ public class RoomController {
    *
    * @see RoomService#deleteRoomById(long)
    */
-  @DeleteMapping("{id}")
+  @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteRoomById(@PathVariable @Min(value = 1, message = "{id.min}") long id) {
     roomService.deleteRoomById(id);

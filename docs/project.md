@@ -128,46 +128,46 @@ Expected diagram showing:
 
 **Movies:**
 ```
-POST   /api/movies              - Create a new movie
-GET    /api/movies              - List all active movies (with optional filters: title, genre)
-GET    /api/movies/{id}         - Get movie details
-PUT    /api/movies/{id}         - Update movie information
-DELETE /api/movies/{id}         - Delete movie (only if no scheduled shows)
-GET    /api/movies/search       - Search movies by title or genre
+POST   /api/v1/movies              - Create a new movie
+GET    /api/v1/movies              - List all active movies (with optional filters: title, genre)
+GET    /api/v1/movies/{id}         - Get movie details
+PUT    /api/v1/movies/{id}         - Update movie information
+DELETE /api/v1/movies/{id}         - Delete movie (only if no scheduled shows)
+GET    /api/v1/movies/search       - Search movies by title or genre
 ```
 
 **Rooms:**
 ```
-POST   /api/rooms               - Create a room with seat configuration
-GET    /api/rooms               - List all rooms
-GET    /api/rooms/{id}          - Get room details with seat layout
-PUT    /api/rooms/{id}          - Update room information
-DELETE /api/rooms/{id}          - Delete room (only if no active shows)
-GET    /api/rooms/{id}/seats    - Get seat configuration for a room
+POST   /api/v1/rooms               - Create a room with seat configuration
+GET    /api/v1/rooms               - List all rooms
+GET    /api/v1/rooms/{id}          - Get room details with seat layout
+PUT    /api/v1/rooms/{id}          - Update room information
+DELETE /api/v1/rooms/{id}          - Delete room (only if no active shows)
+GET    /api/v1/rooms/{id}/seats    - Get seat configuration for a room
 ```
 
 **Showtimes:**
 ```
-POST   /api/showtimes           - Schedule a new showtime
-GET    /api/showtimes           - List showtimes (with filters: movie, date, room)
-GET    /api/showtimes/{id}      - Get showtime details with availability
-PUT    /api/showtimes/{id}      - Update showtime
-DELETE /api/showtimes/{id}      - Cancel showtime
-GET    /api/showtimes/{id}/availability - Get seat availability
+POST   /api/v1/showtimes           - Schedule a new showtime
+GET    /api/v1/showtimes           - List showtimes (with filters: movie, date, room)
+GET    /api/v1/showtimes/{id}      - Get showtime details with availability
+PUT    /api/v1/showtimes/{id}      - Update showtime
+DELETE /api/v1/showtimes/{id}      - Cancel showtime
+GET    /api/v1/showtimes/{id}/availability - Get seat availability
 ```
 
 **Tickets:**
 ```
-POST   /api/tickets             - Book tickets (reserve seats)
-GET    /api/tickets/{id}        - Get ticket details
-PUT    /api/tickets/{id}/confirm - Confirm ticket purchase
-PUT    /api/tickets/{id}/cancel  - Cancel ticket
-GET    /api/tickets             - List tickets (with filters)
+POST   /api/v1/tickets             - Book tickets (reserve seats)
+GET    /api/v1/tickets/{id}        - Get ticket details
+PUT    /api/v1/tickets/{id}/confirm - Confirm ticket purchase
+PUT    /api/v1/tickets/{id}/cancel  - Cancel ticket
+GET    /api/v1/tickets             - List tickets (with filters)
 ```
 
 ### Design Decisions
 - **RESTful conventions:** Standard HTTP methods (GET, POST, PUT, DELETE) with proper status codes
-- **Versioning strategy:** No explicit version prefix currently; endpoints are exposed directly under resource paths (e.g. `/movies`, `/tickets`)
+- **Versioning strategy:** API version prefix `/api/v1` in all endpoints
 - **Request/Response format:** JSON request/response DTOs by resource
 - **Error handling approach:** Global exception handling with HTTP Problem Details
 

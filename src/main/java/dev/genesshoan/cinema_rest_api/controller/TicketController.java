@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
  * REST controller for ticket booking and lifecycle operations.
  */
 @RestController
-@RequestMapping("/tickets")
+@RequestMapping("/api/v1/tickets")
 @Validated
 @RequiredArgsConstructor
 public class TicketController {

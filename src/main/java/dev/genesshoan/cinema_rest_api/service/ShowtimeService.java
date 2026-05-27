@@ -19,6 +19,7 @@ import dev.genesshoan.cinema_rest_api.exception.ResourceNotFoundException;
 import dev.genesshoan.cinema_rest_api.mapper.ShowtimeMapper;
 import dev.genesshoan.cinema_rest_api.repository.ShowtimeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service responsible for managing showtimes.
@@ -46,6 +47,7 @@ import lombok.RequiredArgsConstructor;
  * and does not maintain mutable shared state.
  */
 @Service
+@Transactional(readOnly=true)
 @RequiredArgsConstructor
 public class ShowtimeService {
   private final ShowtimeRepository showtimeRepository;
@@ -74,14 +76,14 @@ public class ShowtimeService {
    * @throws ResourceNotFoundException    when the referenced movie or room does
    *                                      not exist
    */
+  @Transactional
   public ShowtimeResponseDTO createShowtime(ShowtimeCreateDTO showtimeCreateDTO) {
 
     validateStartBeforeEnd(showtimeCreateDTO.startTime(), showtimeCreateDTO.endTime());
 
     if (showtimeRepository.existsOverlappingShowtime(
         showtimeCreateDTO.roomId(), showtimeCreateDTO.startTime(),
-        showtimeCreateDTO.endTime(),
-        ShowtimeStatus.SCHEDULED)) {
+        showtimeCreateDTO.endTime(), ShowtimeStatus.SCHEDULED)) {
       throw new OverlapingShowtimesException("A showtime already exists in this room at the specified time.");
     }
 
@@ -122,8 +124,8 @@ public class ShowtimeService {
       ShowtimeStatus status,
       Pageable pageable) {
     return showtimeRepository.search(
-        dateTime.atStartOfDay(),
-        dateTime.plusDays(1).atStartOfDay(),
+        dateTime != null ? dateTime.atStartOfDay() : null,
+        dateTime != null ? dateTime.plusDays(1).atStartOfDay() : null,
         roomId,
         movieId,
         status,
@@ -159,6 +161,7 @@ public class ShowtimeService {
    * @throws ResourceNotFoundException if the showtime does not exist
    * @throws InvalidRequestException   if the provided times are invalid
    */
+  @Transactional
   public ShowtimeResponseDTO updateShowtime(long id, ShowtimeUpdateDTO showtimeUpdateDTO) {
     Showtime existing = showtimeRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Showtime with id '" + id + "' does not exist"));
@@ -179,6 +182,7 @@ public class ShowtimeService {
    * @throws ResourceInUseException   if the showtime has active tickets
    * @throws ResourceNotFoundException if the showtime does not exist
    */
+  @Transactional
   public void cancelShowtime(long id) {
     Showtime showtime = showtimeRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Showtime with id '" + id + "' does not exist"));
