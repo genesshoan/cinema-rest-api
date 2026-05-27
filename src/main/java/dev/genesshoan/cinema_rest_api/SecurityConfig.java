@@ -62,7 +62,7 @@ public class SecurityConfig {
 
                         // Seats
 
-                        .requestMatchers(HttpMethod.GET, "seats/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/seats/**").permitAll()
 
                         // Showtimes
 

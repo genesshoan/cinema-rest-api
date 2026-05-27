@@ -28,12 +28,13 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
         WHERE s.room.id = :room_id
           AND s.startTime < :end_time
           AND s.endTime > :start_time
-          AND s.status == SCHEDULED
+          AND s.status = :status
       """)
   boolean existsOverlappingShowtime(
       @Param("room_id") Long roomId,
       @Param("start_time") LocalDateTime startTime,
-      @Param("end_time") LocalDateTime endTime);
+      @Param("end_time") LocalDateTime endTime,
+      @Param("status") ShowtimeStatus status);
 
   /**
    * Search for showtimes within an optional time window and optional filters
