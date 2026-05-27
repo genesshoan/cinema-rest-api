@@ -116,7 +116,7 @@ public class ShowtimeServiceTest {
   @Test
   @DisplayName("createShowtime - happy path: should save and return DTO")
   void createShowtime_WhenValid_ShouldSaveAndReturnDto() {
-    when(showtimeRepository.existsOverlappingShowtime(any(Long.class), any(LocalDateTime.class), any(LocalDateTime.class), any(ShowtimeStatus.class)))
+    when(showtimeRepository.existsOverlappingShowtime(any(Long.class), any(LocalDateTime.class), any(LocalDateTime.class)))
         .thenReturn(false);
     when(showtimeMapper.toEntity(createDTO)).thenReturn(showtime);
     when(movieService.getEntityById(movie.getId())).thenReturn(movie);
@@ -131,7 +131,7 @@ public class ShowtimeServiceTest {
     assertThat(result.roomName()).isEqualTo(room.getName());
     assertThat(result.movieTitle()).isEqualTo(movie.getTitle());
 
-    verify(showtimeRepository).existsOverlappingShowtime(any(Long.class), any(LocalDateTime.class), any(LocalDateTime.class), any(ShowtimeStatus.class));
+    verify(showtimeRepository).existsOverlappingShowtime(any(Long.class), any(LocalDateTime.class), any(LocalDateTime.class));
     verify(showtimeRepository).save(showtime);
   }
 
@@ -142,7 +142,7 @@ public class ShowtimeServiceTest {
   @Test
   @DisplayName("createShowtime - overlapping: should throw OverlapingShowtimesException")
   void createShowtime_WhenOverlapping_ShouldThrowException() {
-    when(showtimeRepository.existsOverlappingShowtime(any(Long.class), any(LocalDateTime.class), any(LocalDateTime.class), any(ShowtimeStatus.class)))
+    when(showtimeRepository.existsOverlappingShowtime(any(Long.class), any(LocalDateTime.class), any(LocalDateTime.class)))
         .thenReturn(true);
 
     assertThatThrownBy(() -> showtimeService.createShowtime(createDTO))

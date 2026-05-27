@@ -80,8 +80,7 @@ public class ShowtimeService {
 
     if (showtimeRepository.existsOverlappingShowtime(
         showtimeCreateDTO.roomId(), showtimeCreateDTO.startTime(),
-        showtimeCreateDTO.endTime(),
-        ShowtimeStatus.SCHEDULED)) {
+        showtimeCreateDTO.endTime())) {
       throw new OverlapingShowtimesException("A showtime already exists in this room at the specified time.");
     }
 
