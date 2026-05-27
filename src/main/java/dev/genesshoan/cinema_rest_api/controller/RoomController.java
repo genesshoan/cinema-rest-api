@@ -129,7 +129,7 @@ public class RoomController {
    *
    * @see RoomService#deleteRoomById(long)
    */
-  @DeleteMapping("{id}")
+  @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteRoomById(@PathVariable @Min(value = 1, message = "{id.min}") long id) {
     roomService.deleteRoomById(id);
