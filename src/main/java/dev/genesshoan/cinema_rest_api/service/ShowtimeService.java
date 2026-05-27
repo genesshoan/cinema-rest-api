@@ -124,8 +124,8 @@ public class ShowtimeService {
       ShowtimeStatus status,
       Pageable pageable) {
     return showtimeRepository.search(
-        dateTime.atStartOfDay(),
-        dateTime.plusDays(1).atStartOfDay(),
+        dateTime != null ? dateTime.atStartOfDay() : null,
+        dateTime != null ? dateTime.plusDays(1).atStartOfDay() : null,
         roomId,
         movieId,
         status,
