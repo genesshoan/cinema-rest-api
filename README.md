@@ -179,7 +179,7 @@ The API will be available at: `http://localhost:8080`
 curl http://localhost:8080/actuator/health
 
 # Or test a basic endpoint
-curl http://localhost:8080/api/movies
+curl http://localhost:8080/api/v1/movies
 ```
 
 ## 📚 API Documentation
@@ -234,7 +234,7 @@ http://localhost:8080
 
 #### Create a Movie
 ```bash
-curl -X POST http://localhost:8080/api/movies \
+curl -X POST http://localhost:8080/api/v1/movies \
   -H "Content-Type: application/json" \
   -d '{
     "title": "The Matrix",
@@ -247,7 +247,7 @@ curl -X POST http://localhost:8080/api/movies \
 
 #### Create a Room
 ```bash
-curl -X POST http://localhost:8080/api/rooms \
+curl -X POST http://localhost:8080/api/v1/rooms \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Theater 1",
@@ -258,7 +258,7 @@ curl -X POST http://localhost:8080/api/rooms \
 
 #### Book Tickets
 ```bash
-curl -X POST http://localhost:8080/api/tickets \
+curl -X POST http://localhost:8080/api/v1/tickets \
   -H "Content-Type: application/json" \
   -d '{
     "showtimeId": 1,
