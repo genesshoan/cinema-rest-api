@@ -101,10 +101,10 @@ public class ShowtimeController {
    */
   @GetMapping
   public Page<ShowtimeResponseDTO> search(
-      @RequestParam LocalDate dateTime,
-      @RequestParam Long roomId,
-      @RequestParam Long movieId,
-      @RequestParam ShowtimeStatus status,
+      @RequestParam(required = false) LocalDate dateTime,
+      @RequestParam(required = false) Long roomId,
+      @RequestParam(required = false) Long movieId,
+      @RequestParam(required = false) ShowtimeStatus status,
       Pageable pageable) {
     return showtimeService.search(dateTime, roomId, movieId, status, pageable);
   }
