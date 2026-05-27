@@ -124,6 +124,10 @@ public class TicketService {
     BigDecimal totalPrice = BigDecimal.ZERO;
 
     for (Seat seat : seats) {
+      if (!seat.getShowtime().getId().equals(requestDTO.showtimeId())) {
+        throw new SeatNotAvailableException("Seat with id " + seat.getId() + " does not belong to showtime " + requestDTO.showtimeId());
+      }
+
       seat.setStatus(SeatStatus.SOLD);
 
       Ticket ticket = new Ticket();
