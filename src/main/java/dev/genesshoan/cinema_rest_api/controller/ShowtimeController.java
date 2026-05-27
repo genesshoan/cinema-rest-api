@@ -24,6 +24,7 @@ import dev.genesshoan.cinema_rest_api.dto.showtime.ShowtimeUpdateDTO;
 import dev.genesshoan.cinema_rest_api.entity.ShowtimeStatus;
 import dev.genesshoan.cinema_rest_api.service.SeatService;
 import dev.genesshoan.cinema_rest_api.service.ShowtimeService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 
@@ -73,7 +74,7 @@ public class ShowtimeController {
    * @see ShowtimeService#createShowtime(ShowtimeCreateDTO)
    */
   @PostMapping
-  public ShowtimeResponseDTO createShowtime(@RequestBody ShowtimeCreateDTO showtimeCreateDTO) {
+  public ShowtimeResponseDTO createShowtime(@Valid @RequestBody ShowtimeCreateDTO showtimeCreateDTO) {
     return showtimeService.createShowtime(showtimeCreateDTO);
   }
 
@@ -162,7 +163,7 @@ public class ShowtimeController {
   @PutMapping("/{id}")
   public ShowtimeResponseDTO updateShowtime(
       @PathVariable(required = true) @Min(value = 1, message = "{id.min}") long id,
-      @RequestBody ShowtimeUpdateDTO showtimeUpdateDTO) {
+      @Valid @RequestBody ShowtimeUpdateDTO showtimeUpdateDTO) {
     return showtimeService.updateShowtime(id, showtimeUpdateDTO);
   }
 
