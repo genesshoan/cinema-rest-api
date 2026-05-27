@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
  * </p>
  *
  * <p>
- * Base URL: {@code /rooms}
+ * Base URL: {@code /api/v1/rooms}
  * </p>
  *
  * <p>
@@ -57,7 +57,7 @@ import lombok.RequiredArgsConstructor;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/api/v1/rooms")
 @Validated
 @RequiredArgsConstructor
 public class RoomController {

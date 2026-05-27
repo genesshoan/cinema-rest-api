@@ -48,35 +48,35 @@ public class SecurityConfig {
 
                         // Movies
 
-                        .requestMatchers(HttpMethod.POST, "/movies").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/movies/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/movies/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/movies", "/movies/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/movies").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/movies/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/movies/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/movies", "/api/v1/movies/**").permitAll()
 
                         // Rooms
 
-                        .requestMatchers(HttpMethod.POST, "/rooms").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/rooms/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/rooms/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/rooms").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/rooms/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/rooms/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
 
                         // Seats
 
-                        .requestMatchers(HttpMethod.GET, "/seats/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/seats/**").permitAll()
 
                         // Showtimes
 
-                        .requestMatchers(HttpMethod.POST, "/showtimes").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/showtimes/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/showtimes/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/showtimes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/showtimes").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/showtimes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/showtimes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/showtimes/**").permitAll()
 
                         // Tickets
 
-                        .requestMatchers(HttpMethod.POST, "/tickets").hasRole("CUSTOMER")
-                        .requestMatchers(HttpMethod.PUT, "/tickets/*/cancel").hasRole("CUSTOMER")
-                        .requestMatchers(HttpMethod.PUT, "/tickets/**").hasAnyRole("ADMIN", "STAFF")
-                        .requestMatchers(HttpMethod.GET, "/tickets/**").hasAnyRole("ADMIN", "STAFF", "CUSTOMER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/tickets").hasRole("CUSTOMER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/tickets/*/cancel").hasRole("CUSTOMER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/tickets/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/tickets/**").hasAnyRole("ADMIN", "STAFF", "CUSTOMER")
 
                         .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults());

@@ -38,7 +38,7 @@ import lombok.AllArgsConstructor;
  * </p>
  *
  * <p>
- * All endpoints are mapped under the base path {@code /showtimes}.
+ * All endpoints are mapped under the base path {@code /api/v1/showtimes}.
  * </p>
  *
  * @see ShowtimeService
@@ -49,7 +49,7 @@ import lombok.AllArgsConstructor;
  */
 @RestController
 @AllArgsConstructor
-@RequestMapping("/showtimes")
+@RequestMapping("/api/v1/showtimes")
 @Validated
 public class ShowtimeController {
   private final ShowtimeService showtimeService;
@@ -88,7 +88,7 @@ public class ShowtimeController {
    * </p>
    *
    * <p>
-   * Example query: {@code GET /showtimes?dateTime=2026-01-21&roomId=1&movieId=5&status=SCHEDULED&page=0&size=10}
+   * Example query: {@code GET /api/v1/showtimes?dateTime=2026-01-21&roomId=1&movieId=5&status=SCHEDULED&page=0&size=10}
    * </p>
    *
    * @param dateTime the date to search for showtimes (day precision); can be null
