@@ -131,24 +131,8 @@ public class MovieController {
    */
   @GetMapping
   public Page<MovieResponseDTO> search(
-      @RequestParam(required = false) @NotBlank(message = "{movie.title.required}") @Size(max = 255, message = "{movie.title.size}") String title,
-      @RequestParam(required = false) @NotBlank(message = "{movie.genre.required}") @Size(max = 30, message = "{movie.genre.size}") String genre,
-      Pageable pageable) {
-    return movieService.search(title, genre, pageable);
-  }
-
-  /**
-   * Dedicated alias for searching movies by title and/or genre.
-   *
-   * @param title    optional title search term
-   * @param genre    optional genre search term
-   * @param pageable pagination and sorting parameters
-   * @return a page of matching movies
-   */
-  @GetMapping("/search")
-  public Page<MovieResponseDTO> searchAlias(
-      @RequestParam(required = false) @NotBlank(message = "{movie.title.required}") @Size(max = 255, message = "{movie.title.size}") String title,
-      @RequestParam(required = false) @NotBlank(message = "{movie.genre.required}") @Size(max = 30, message = "{movie.genre.size}") String genre,
+      @RequestParam(required = false) @Size(max = 255, message = "{movie.title.size}") String title,
+      @RequestParam(required = false) @Size(max = 30, message = "{movie.genre.size}") String genre,
       Pageable pageable) {
     return movieService.search(title, genre, pageable);
   }
